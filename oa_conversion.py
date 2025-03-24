@@ -3,18 +3,19 @@ import requests
 import json
 
 #messages from OA SWITCHBOARD
+#################
+# oa_token first#
+#################
+# headers = {
+#     'Content-Type': 'application/json',
+# }
 
-oa_token first#
-headers = {
-    'Content-Type': 'application/json',
-}
+# json_data = {
+#     'email': secrets.oa_switchboard_email,
+#     'password': secrets.oa_switchboard_pw,
+# }
 
-json_data = {
-    'email': oa_switchboard_email,
-    'password': oa_switchboard_pw,
-}
-
-oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data)
+# oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data)
 
 # response is like this 
 # {
@@ -28,25 +29,30 @@ oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', 
 #     "type": "institution"
 #   }
 # }
+################
+# token for now# 
+################
+# oa_token = oa_token_response['token']
+# headers = {
+#     'Authorization': 'Bearer '+oa_token+'',
+# }
 
-# token for now 
-oa_token = oa_token_response['token']
-headers = {
-    'Authorization': 'Bearer '+oa_token+'',
-}
+# params = {
+#     'startrow': '1',
+#     'maxrows': '25',
+#     'filter': 'all',
+#     'orderby': 'created',
+#     'orderdir': 'desc',
+# }
 
-params = {
-    'startrow': '1',
-    'maxrows': '25',
-    'filter': 'all',
-    'orderby': 'created',
-    'orderdir': 'desc',
-}
+# oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
+oa_messages = ""
+with open('messages.json') as f:
+    oa_messages = json.load(f)
 
-oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
-# oa_messages = ""
-# with open('ex_msgs.json') as f:
-#     oa_messages = json.load(f)
+license_list = ""
+with open('sandbox_licenses.json') as f:
+    license_list = json.load(f)
 
 # print(oa_messages)
 
@@ -55,36 +61,85 @@ oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=p
 #     orcid, dept affiliation up to first comma, ln fn
 # article
 #     grant #, publication date in manuscript, license, don't mint new doi but save that. all item type = journal contribution.
-def getval(dictionary,key):
+
+def getval(dictionary,key): #stupid function for keyerror try catch.
     try:
         return dictionary[key]
     except KeyError:
         return  ""
 
+message_counter = 0
+f = open("into_fs.json", "w")
+f.write("[")
 for message in oa_messages['messages']:
-    
+    message_counter+=1
+    message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":{},"doi":""}
     # let's get authors
     authors = message['data']['authors']
 
     for this_guy in authors:
-        print(getval(this_guy,'lastName'))
-        
-        print(getval(this_guy,'firstName'))
-        print(getval(this_guy,'initials'))
-        print(getval(this_guy,'ORCID'))
+# {
+# "id": 97657,
+# "full_name": "John Doe",
+# "first_name": "John",
+# "last_name": "Doe",
+# "is_active": 1,
+# "url_name": "John_Doe",
+# "orcid_id": "1234-5678-9123-1234"
+# }
+        fn = getval(this_guy,'lastName')
+        ln = getval(this_guy,'firstName')
+        ini = getval(this_guy,'initials')
+        orcid = getval(this_guy,'ORCID')
         inst = getval(this_guy,'institutions')
         print(inst) # ex [{'name': 'Departmentof Biomedical Engineering, Carnegie MellonUniversity, Pittsburgh, Pennsylvania, United States, 15213', 'country': '', 'sourceaffiliation': '', 'ror': 'https://ror.org/05x2bcf33'}]
-        print(getval(inst[0],'name').split(',')[0])
+        inst = getval(inst[0],'name').split(',')[0]
+        # where does inst go???
+        author_dict = {"full_name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}
+        message_to_fs['authors'].append(author_dict)
     # let's get articles
     article = message['data']['article']
-    title = article['title']
-    publication = article['manuscript']['dates']['publication']
-    license = article['vor']['license']
-    doi = article['doi']
-    for grant in article['grants']:
-        print(grant['name'])
 
-        
+    title = article['title']+"  " + str(message_counter)
+    message_to_fs['title'] = title
+
+    publication_date = getval(article['manuscript']['dates'],'publication')
+    message_to_fs['published_date']=publication_date
+
+    license = article['vor']['license']
+    for pre_license in license_list:
+        if license == pre_license['name']:
+            license = pre_license['value']
+            break
+        else:
+            license=0
+            print("\nthere's no matching license here!!!!\n")
+
+    message_to_fs['license']={"value":1,"name":license}
+# {
+# "value": 1,
+# "name": "CC BY",
+# "url": "http://creativecommons.org/licenses/by/4.0/"
+# }
+    doi = article['doi']
+    message_to_fs['doi']=doi
+
+    if len(getval(article,'grants'))>0:
+        for grant in article['grants']:
+            print(grant['name']) # idk if this is what we want or if it's something else and how to put it into the fs.  there is funding_list and also funding . waiting t ohear back.
+            message_to_fs['funding_list'].append({"grant_code":grant['name']})
+    f = open("into_fs.json", "a")
+    f.write(json.dumps(message_to_fs))
+
+    if len(oa_messages['messages'])==message_counter:
+        f.close()
+        break
+    else:
+        f.write(',')
+    f.close()
+f = open("into_fs.json", "a")
+f.write(']')
+f.close()
 # lastName
 # firstName
 # initials
@@ -94,17 +149,19 @@ for message in oa_messages['messages']:
 #####################
 #token from figshare#
 #####################
-headers = {
-    'Content-Type': 'application/json',
-}
 
-json_data = {
-    'client_id': figshare_client_id,
-    'client_secret': figshare_client_secret,
-    'grant_type': 'client_credentials',
-}
 
-response = requests.post('https://api.figsh.com/v2/token', headers=headers, json=json_data)
+# headers = {
+#     'Content-Type': 'application/json',
+# }
+
+# json_data = {
+#     'client_id': secrets.figshare_client_id,
+#     'client_secret': secrets.figshare_client_secret,
+#     'grant_type': 'client_credentials',
+# }
+
+# response = requests.post('https://api.figsh.com/v2/token', headers=headers, json=json_data)
 
 #response is the token.
 
