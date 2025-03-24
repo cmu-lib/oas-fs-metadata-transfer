@@ -100,7 +100,7 @@ for message in oa_messages['messages']:
     # let's get articles
     article = message['data']['article']
 
-    title = article['title']+"  " + str(message_counter)
+    title = article['title']
     message_to_fs['title'] = title
 
     publication_date = getval(article['manuscript']['dates'],'publication')
