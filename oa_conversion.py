@@ -1,6 +1,7 @@
 import secrets
 import requests
 import json
+import re
 
 #messages from OA SWITCHBOARD
 #################
@@ -71,9 +72,11 @@ def getval(dictionary,key): #stupid function for keyerror try catch.
 message_counter = 0
 f = open("into_fs.json", "w")
 f.write("[")
+
+orcid_match = re.compile("\d{4}-\d{4}-\d{4}-(\d{3}X|\d{4})")
 for message in oa_messages['messages']:
     message_counter+=1
-    message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":{},"doi":""}
+    message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":0,"doi":"","keywords":['OA Switchboard']}
     # let's get authors
     authors = message['data']['authors']
 
@@ -91,19 +94,27 @@ for message in oa_messages['messages']:
         ln = getval(this_guy,'firstName')
         ini = getval(this_guy,'initials')
         orcid = getval(this_guy,'ORCID')
+        if "orcid.org" in orcid:
+            orcid = orcid.split('/')[3]
+            if orcid_match.match(orcid) is None or len(orcid.split('-'))>4:
+                orcid=""
         inst = getval(this_guy,'institutions')
         print(inst) # ex [{'name': 'Departmentof Biomedical Engineering, Carnegie MellonUniversity, Pittsburgh, Pennsylvania, United States, 15213', 'country': '', 'sourceaffiliation': '', 'ror': 'https://ror.org/05x2bcf33'}]
         inst = getval(inst[0],'name').split(',')[0]
         # where does inst go???
-        author_dict = {"full_name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}
+        author_dict = {"name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}
         message_to_fs['authors'].append(author_dict)
     # let's get articles
     article = message['data']['article']
 
     title = article['title']
+    message_to_fs['description'] = "This article is from OA Switchboard\n" + getval(article,'acknowledgement')
     message_to_fs['title'] = title
 
     publication_date = getval(article['manuscript']['dates'],'publication')
+    # pretty stupid that we need a publication date.
+    if publication_date == "":
+        publication_date = getval(article['manuscript']['dates'],'acceptance')
     message_to_fs['published_date']=publication_date
 
     license = article['vor']['license']
@@ -115,14 +126,16 @@ for message in oa_messages['messages']:
             license=0
             print("\nthere's no matching license here!!!!\n")
 
-    message_to_fs['license']={"value":1,"name":license}
+    message_to_fs['license']=license
 # {
 # "value": 1,
 # "name": "CC BY",
 # "url": "http://creativecommons.org/licenses/by/4.0/"
 # }
     doi = article['doi']
-    message_to_fs['doi']=doi
+    # message_to_fs['doi']=doi
+    message_to_fs['doi']= "" # blank for now. have to set up/use SELFdoi to set something other than a fs-generated one
+    #which there is no documentation for on figshare :) 
 
     if len(getval(article,'grants'))>0:
         for grant in article['grants']:
