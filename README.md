@@ -9,3 +9,10 @@ but if this does need to be more robust i can see it being a small django app so
 	- ya not sure how oa switchboard would be messaging about updated articles, if those do happen... 
 
 but let's just get it working
+
+
+available licenses in our api. need to be accessed by the api.
+accessed like this `curl -X GET "https://api.figsh.com/v2/account/licenses?`
+need to do this separately and then match 
+
+ugh
