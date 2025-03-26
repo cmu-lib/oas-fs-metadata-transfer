@@ -90,8 +90,8 @@ for message in oa_messages['messages']:
 # "url_name": "John_Doe",
 # "orcid_id": "1234-5678-9123-1234"
 # }
-        fn = getval(this_guy,'lastName')
-        ln = getval(this_guy,'firstName')
+        fn = getval(this_guy,'firstName')
+        ln = getval(this_guy,'lastName')
         ini = getval(this_guy,'initials')
         orcid = getval(this_guy,'ORCID')
         if "orcid.org" in orcid:
