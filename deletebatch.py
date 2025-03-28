@@ -1,4 +1,5 @@
 import requests
+import secrets
 import json
 
 headers = {
@@ -6,7 +7,7 @@ headers = {
 }
 
 params = {
-    'access_token': '',
+    'access_token': secrets.figshare_token,
 }
 
 json_data = {}

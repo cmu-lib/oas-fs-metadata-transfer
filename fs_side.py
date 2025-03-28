@@ -32,7 +32,7 @@ headers = {
 }
 
 params = {
-    'access_token': '', #git the access token from the response above.
+    'access_token': secrets.figshare_token,
 }
 
 with open('into_fs.json', 'rb') as f:
@@ -67,7 +67,7 @@ for i in into_messages:
     # print('\n')
     # print(response.__dict__)
 
-exit()
+# exit()
 # print(response)
 my_ass = "2183154"
     # this service automatically adds me as an author which is pretty stupid. i need to remove myself . i found my user ID (for the dev)
@@ -76,7 +76,7 @@ my_ass = "2183154"
     # delete my ass to hell out of here.
     # curl -X DELETE "https://api.figshare.com/v2/account/articles/{article_id}/authors/{author_id}"
 with open('confirmed_article_ids.txt', 'rb') as f:
-        articles = file.read().split('/')
+        articles = file.read().split(',')
 for article in articles:
     print("deleting \n\n\n")
     response = requests.delete("https://api.figsh.com/v2/account/articles/"+str(article)+"/authors/"+my_ass,params=params,headers=headers)

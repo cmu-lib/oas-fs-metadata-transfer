@@ -7,16 +7,16 @@ import re
 #################
 # oa_token first#
 #################
-# headers = {
-#     'Content-Type': 'application/json',
-# }
+headers = {
+    'Content-Type': 'application/json',
+}
 
-# json_data = {
-#     'email': secrets.oa_switchboard_email,
-#     'password': secrets.oa_switchboard_pw,
-# }
+json_data = {
+    'email': secrets.oa_switchboard_email,
+    'password': secrets.oa_switchboard_pw,
+}
 
-# oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data)
+# oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data).json()
 
 # response is like this 
 # {
@@ -47,7 +47,9 @@ import re
 # }
 
 # oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
-oa_messages = ""
+
+# print(oa_messages)
+
 with open('messages.json') as f:
     oa_messages = json.load(f)
 
@@ -133,8 +135,9 @@ for message in oa_messages['messages']:
 # "url": "http://creativecommons.org/licenses/by/4.0/"
 # }
     doi = article['doi']
-    # message_to_fs['doi']=doi
-    message_to_fs['doi']= "" # blank for now. have to set up/use SELFdoi to set something other than a fs-generated one
+    message_to_fs['doi']=doi#[16:len(doi)]
+    # doi = ""
+    # message_to_fs['doi']= "" # blank for now. have to set up/use SELFdoi to set something other than a fs-generated one
     #which there is no documentation for on figshare :) 
 
     if len(getval(article,'grants'))>0:
@@ -179,3 +182,5 @@ f.close()
 #response is the token.
 
 # use the token to do the insert with the other thing. FORTHCOMING
+
+print("\n\n\n\nDON'T FORGET TO SWAP AUTHOR NAME")
