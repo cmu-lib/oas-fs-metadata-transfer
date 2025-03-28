@@ -1,3 +1,5 @@
 ./secrets.py
 ./oafs-venv
 **/__pycache__/
+oafs/secrets.json
+oafs/db.sqlite3

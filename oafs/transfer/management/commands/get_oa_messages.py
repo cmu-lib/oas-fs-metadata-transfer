@@ -25,13 +25,15 @@ class Command(BaseCommand):
             'email': secrets['oa_switchboard_email'],
             'password': secrets['oa_switchboard_pw'],
         }
+
         oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data).json()
         self.stdout.write(json.dumps(oa_token_response))
         oa_token = oa_token_response['token']
 
-        
+        # congrats you got a token.
+
         headers = {
-            'Authorization': 'Bearer '+oa_token+'',
+            'Authorization': 'Bearer ' + oa_token
         }
 
         params = {
@@ -44,12 +46,13 @@ class Command(BaseCommand):
 
         oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
         self.stdout.write(json.dumps(oa_messages))
+        
         for article in oa_messages['messages']:
             mess = oaMessage()
-            self.stdout.write(article['title'])
-            mess.title = article['title']
-            mess.oa_id = article['id']
+            self.stdout.write(article['data']['article']['title'])
+            mess.message_title = article['data']['article']['title']
+            mess.message_id = article['id']
             mess.message_json = str(article)
-            # Article.objects.get(pk=article_id)
+
             mess.save()
 
