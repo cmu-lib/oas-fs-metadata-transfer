@@ -1,1 +1,3 @@
 ./secrets.py
+./oafs-venv
+**/__pycache__/
