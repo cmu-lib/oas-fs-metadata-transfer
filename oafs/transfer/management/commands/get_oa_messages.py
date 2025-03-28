@@ -48,6 +48,10 @@ class Command(BaseCommand):
         self.stdout.write(json.dumps(oa_messages))
         
         for article in oa_messages['messages']:
+            # put in a check to see if this particular message exists already
+            if oaMessage.objects.filter(message_id=article['id']):#this article exists already
+                self.stdout.write('its here already')
+                continue
             mess = oaMessage()
             self.stdout.write(article['data']['article']['title'])
             mess.message_title = article['data']['article']['title']
@@ -55,4 +59,3 @@ class Command(BaseCommand):
             mess.message_json = str(article)
 
             mess.save()
-
