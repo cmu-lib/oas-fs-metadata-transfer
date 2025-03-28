@@ -43,7 +43,8 @@ for i in into_messages:
     print(i)
     print("\n\n")
     response = requests.post('https://api.figsh.com/v2/account/articles', params=params, headers=headers, data=json.dumps(i)).json()
-    print(response)
+    print(response) 
+
     try:
         code = response['code']
         if response['code'] in ['UnknownException', 'BadRequest', 'UnprocessableEntity']:
@@ -55,7 +56,7 @@ for i in into_messages:
     f = open("confirmed_article_ids.txt", "a")
     f.write(article_up+',')
     f.close()
-    time.sleep(2)
+    time.sleep(1)
     # my_ass = "2183154"
     # this service automatically adds me as an author which is pretty stupid. i need to remove myself . i found my user ID (for the dev)
     # 2183154
@@ -82,3 +83,7 @@ for article in articles:
     response = requests.delete("https://api.figsh.com/v2/account/articles/"+str(article)+"/authors/"+my_ass,params=params,headers=headers)
     print('\n')
     print(response.__dict__)
+    response = requests.post("https://api.figsh.com/v2/account/articles/"+str(article)+"/private_links",params=params,headers=headers).json()
+    print(response)
+    print('private link here')
+    

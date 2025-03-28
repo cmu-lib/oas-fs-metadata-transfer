@@ -134,8 +134,7 @@ for message in oa_messages['messages']:
 # "name": "CC BY",
 # "url": "http://creativecommons.org/licenses/by/4.0/"
 # }
-    doi = article['doi']
-    message_to_fs['doi']=doi#[16:len(doi)]
+    message_to_fs['doi']=article['doi'][16:len(doi)]
     # doi = ""
     # message_to_fs['doi']= "" # blank for now. have to set up/use SELFdoi to set something other than a fs-generated one
     #which there is no documentation for on figshare :) 
