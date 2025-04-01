@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from oafs.transfer.models import oaMessage
+from transfer.models import oaMessage
 from oafs.settings import secrets
 import requests
 import json

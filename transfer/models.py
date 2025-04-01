@@ -1,8 +1,15 @@
 from django.db import models
 from django import forms
 
+# i think this should be like a cursor. would it be better to have this saved as a file then?
+# the oa messages have failed on me a couple times when trying to make more than a couple requests
+class oaMessageAttempts(models.Model): 
+    attempted = models.DateTimeField(auto_now_add=True, blank=True)
+    total_messages = models.IntegerField(help_text="how many messages we gots", default=0)
+    last_offset = models.IntegerField(help_text="how far back", default=0)
 
-class oaMessage(models.Model):  # base class should subclass 'django.db.models.Model'
+
+class oaMessage(models.Model):  
     message_id = models.IntegerField(help_text="id of the messages",default=0)
     message_title = models.CharField(max_length=1024, help_text='title of the article',null=True)
     status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True)
