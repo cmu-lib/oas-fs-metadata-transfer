@@ -15,4 +15,9 @@ available licenses in our api. need to be accessed by the api.
 accessed like this `curl -X GET "https://api.figsh.com/v2/account/licenses?`
 need to do this separately and then match 
 
-ugh
+making it a gui
+
+save all the messages in our db. 
+
+https://bitbucket.org/oaswitchboard/api/src/master/README.md
+https://docs.figshare.com/

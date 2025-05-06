@@ -3,16 +3,26 @@ from django import forms
 
 # i think this should be like a cursor. would it be better to have this saved as a file then?
 # the oa messages have failed on me a couple times when trying to make more than a couple requests
+
+#instead of doing NOTES here i think maybe have some other sort of table that will have "issues" as these can resolve.
 class oaMessageAttempts(models.Model): 
     attempted = models.DateTimeField(auto_now_add=True, blank=True)
     total_messages = models.IntegerField(help_text="how many messages we gots", default=0)
     last_offset = models.IntegerField(help_text="how far back", default=0)
 
+class repoLicense(models.Model):
+    value = models.CharField(max_length=1024, help_text='cc short code',null=True,unique=True)
+    name = models.CharField(max_length=1024, help_text='longform',null=True,unique=True)
+    url = models.CharField(max_length=1024, help_text='url for this license',null=True)
+    def __str__(self):
+        return self.name
 
 class oaMessage(models.Model):  
     message_id = models.IntegerField(help_text="id of the messages",default=0)
     message_title = models.CharField(max_length=1024, help_text='title of the article',null=True)
-    status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True)
+    # statuses: ['transferred','ignore','error','ready','duplicate']
+    status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True,default='ready')
+    note = models.TextField(help_text="what went wrong. what went write.",default="",null=True)
     attempted = models.DateTimeField(auto_now_add=True, blank=True)
     message_json = models.TextField(help_text="the json received",default=None,null=True)
     
@@ -20,8 +30,12 @@ class oaMessage(models.Model):
         return self.message_title
     
 class fsAttempt(models.Model):  
-	oa_id = models.ForeignKey('oaMessage', on_delete=models.CASCADE ,help_text='FK for token table')
-	fs_id = models.IntegerField(help_text="filled in after successful upload to figshare",default=0)
-	status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True)
-	link = models.CharField(max_length=1024, help_text="link created for reference on fs",null=True)
-	fs_attempt_json = models.TextField(help_text="the json attempt",null=True)
+    oama_fk = models.ForeignKey('oaMessage', on_delete=models.CASCADE ,help_text='FK for token table') #oaMessageAttempt
+    fs_id = models.IntegerField(help_text="filled in after successful upload to figshare",default=0)
+    # statuses: ['ready-for-push','ready-for-review','failed','published']
+    status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True,default='ready-for-push')
+    response = models.CharField(max_length=2048, help_text="response status from FS",null=True,default='')
+    link = models.CharField(max_length=1024, help_text="link created for reference on fs",null=True)
+    attempted= models.DateTimeField(auto_now_add=True, blank=True)
+    note = models.TextField(help_text="what went wrong. what went write.",default="",null=True)
+    fs_attempt_json = models.TextField(help_text="the json attempt",null=True)
