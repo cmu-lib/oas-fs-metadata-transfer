@@ -3,6 +3,7 @@
 {% block content %}
 <style>
     .message-note,.message-json{display: none;}
+
     .message-id{color:blue;text-decoration: underline;}
     .message-id:hover{cursor: pointer;}
     .status-id{text-decoration: underline;}
@@ -14,23 +15,27 @@
     }
 
 </script>
-<h3>All OA Messages</h3>
+<h3>All figshare Messages</h3>
 <ul>
-    {% for item in messages  %}
-    <li><span class="message-id" id="message-{{item.message_id}}" onclick="toggleJson();">{{item.message_id}}</span> {{item.message_title}} // saved on: {{item.attempted}} || 
-        {%if item.status == 'ready'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:green;">{{item.status}}</span>
+    {% for item in attempts  %}
+
+    <li><span class="message-id" id="message-{{item.id}}" onclick="toggleJson();">{{item.id}}</span> {{item.oama_fk.message_title}} // saved on: {{item.attempted}} || 
+        {%if item.status == 'published'%} 
+        <span class="status-id" id="status-{{item.id}}" style="color:green;">{{item.status}}</span>
         {%endif%}
-        {%if item.status == 'error'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</span>
+        {%if item.status == 'failed'%}
+        <span class="status-id" id="status-{{item.id}}" style="color:red;">{{item.status}}</span>
         {%endif%}
-        {%if item.status == 'duplicate'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</span>
+        {%if item.status == 'ready-for-review'%}
+        <span class="status-id" id="status-{{item.id}}" style="color:blue;">{{item.status}}</span>
+        {%endif%}
+        {%if item.status == 'ready-for-push'%}
+        <span class="status-id" id="status-{{item.id}}" style="color:orange;">{{item.status}}</span>
         {%endif%}
     </li>
         
-    <li class="message-json" id="json-{{item.message_id}}"><pre>{{item.message_json}}</pre></li>
-    <li class="message-note" id="note-{{item.message_id}}"><pre>{{item.note}}</pre></li>
+    <li class="message-json" id="json-{{item.id}}"><pre>{{item.fs_attempt_json}}</pre></li>
+    <li class="message-note" id="note-{{item.id}}"><pre>{{item.note}}</pre></li>
     {% endfor %}
 </ul>
 
