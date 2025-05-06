@@ -20,5 +20,8 @@ from transfer import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.oafsIndex, name='oafsIndex'),
+    path('fsAttempts', views.fsAttempts, name='fsAttempts'),
     path('oaMessages', views.showMessages, name='showMessages'),
+    path('fsLicenses', views.showLicenses, name='showLicenses'),
 ]
