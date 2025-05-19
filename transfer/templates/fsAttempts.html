@@ -27,8 +27,8 @@
         <span class="status-id" id="status-{{item.id}}" style="color:red;">{{item.status}}</span>
         {%endif%}
         {%if item.status == 'ready-for-review'%}
-        <span class="status-id" id="status-{{item.id}}" style="color:blue;">{{item.status}}</span>
-        {%endif%}
+        <span class="status-id" id="status-{{item.id}}" style="color:blue;"><a href="{{item.link}}" target="_blank">{{item.status}}</a></span>
+	{%endif%}
         {%if item.status == 'ready-for-push'%}
         <span class="status-id" id="status-{{item.id}}" style="color:orange;">{{item.status}}</span>
         {%endif%}

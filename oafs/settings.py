@@ -25,7 +25,7 @@ def get_secret(setting, secrets=secrets):
         error_msg = 'set the {0} env variable '.format(setting)
         raise ImproperlyConfigured(error_msg)
 
-
+my_ass="2439005"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
