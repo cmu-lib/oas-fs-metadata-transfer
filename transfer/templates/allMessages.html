@@ -8,16 +8,11 @@
     .status-id{text-decoration: underline;}
     .status-id:hover{cursor: pointer;}
 </style>
-<script type="text/javascript">
-    function toggleJson(){
-        console.log();
-    }
 
-</script>
 <h3>All OA Messages</h3>
 <ul>
     {% for item in messages  %}
-    <li><span class="message-id" id="message-{{item.message_id}}" onclick="toggleJson();">{{item.message_id}}</span> {{item.message_title}} // saved on: {{item.attempted}} || 
+    <li><span class="message-id" id="message-{{item.message_id}}">{{item.message_id}}</span> {{item.message_title}} // saved on: {{item.attempted}} || 
         {%if item.status == 'ready'%}
         <span class="status-id" id="status-{{item.message_id}}" style="color:green;">{{item.status}}</span>
         {%endif%}
@@ -29,8 +24,8 @@
         {%endif%}
     </li>
         
-    <li class="message-json" id="json-{{item.message_id}}"><pre>{{item.message_json}}</pre></li>
-    <li class="message-note" id="note-{{item.message_id}}"><pre>{{item.note}}</pre></li>
+    <div class="message-json" id="json-{{item.message_id}}">{{item.message_json}}</div>
+    <div class="message-note" id="note-{{item.message_id}}">{{item.note}}</div>
     {% endfor %}
 </ul>
 
@@ -55,7 +50,11 @@
             mess_id = this.id.split('-')[1];
             $('#note-'+mess_id).toggle();
         });
-        
+        for (var i = $(".message-json").length - 1; i >= 0; i--) {
+            jsonstr = $($(".message-json")[i]).text();
+            jsonstr = JSON.stringify(JSON.parse(jsonstr), null, 2);
+            $(".message-json")[i].innerHTML="<pre>"+jsonstr+"</pre>";
+        }
 });
 
 </script>

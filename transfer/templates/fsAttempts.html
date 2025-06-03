@@ -9,17 +9,12 @@
     .status-id{text-decoration: underline;}
     .status-id:hover{cursor: pointer;}
 </style>
-<script type="text/javascript">
-    function toggleJson(){
-        console.log();
-    }
 
-</script>
 <h3>All figshare Messages</h3>
 <ul>
     {% for item in attempts  %}
 
-    <li><span class="message-id" id="message-{{item.id}}" onclick="toggleJson();">{{item.id}}</span> {{item.oama_fk.message_title}} // saved on: {{item.attempted}} || 
+    <li><span class="message-id" id="message-{{item.id}}">{{item.id}}</span> {{item.oama_fk.message_title}} // saved on: {{item.attempted}} || 
         {%if item.status == 'published'%} 
         <span class="status-id" id="status-{{item.id}}" style="color:green;">{{item.status}}</span>
         {%endif%}
@@ -34,8 +29,8 @@
         {%endif%}
     </li>
         
-    <li class="message-json" id="json-{{item.id}}"><pre>{{item.fs_attempt_json}}</pre></li>
-    <li class="message-note" id="note-{{item.id}}"><pre>{{item.note}}</pre></li>
+    <div class="message-json" id="json-{{item.id}}">{{item.fs_attempt_json}}</div>
+    <div class="message-note" id="note-{{item.id}}">{{item.note}}</div>
     {% endfor %}
 </ul>
 
@@ -56,10 +51,17 @@
             $('#json-'+mess_id).toggle();
         });
         $(".status-id").click(function(){
-            console.log(this.id);
             mess_id = this.id.split('-')[1];
             $('#note-'+mess_id).toggle();
         });
+
+        //make it pretty. i'm sure there's a cleaner way of doing this on the backend but
+        //whatever
+        for (var i = $(".message-json").length - 1; i >= 0; i--) {
+            jsonstr = $($(".message-json")[i]).text();
+            jsonstr = JSON.stringify(JSON.parse(jsonstr), null, 2);
+            $(".message-json")[i].innerHTML="<pre>"+jsonstr+"</pre>";
+        }
         
 });
 
