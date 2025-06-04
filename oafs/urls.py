@@ -24,4 +24,5 @@ urlpatterns = [
     path('fsAttempts', views.fsAttempts, name='fsAttempts'),
     path('oaMessages', views.showMessages, name='showMessages'),
     path('fsLicenses', views.showLicenses, name='showLicenses'),
+    path('fsPushResults', views.fsPushResults, name='fsPushResults'),
 ]

@@ -7,7 +7,6 @@
     .message-id:hover{cursor: pointer;}
     .status-id{text-decoration: underline;}
     .status-id:hover{cursor: pointer;}
-    #process-butt{position: fixed;right:10px;z-index: 100;}
     #helptext{
         margin-left:15px;
         width:45%;
@@ -21,22 +20,18 @@
 <div class="container-fluid">
 <div class="row">
     <div id="helptext">
-        <p>Use this page to determine which messages you would like to push to figshare. The ID with link on the left will show you the formatted json that will be attempted to be pushed to figshare.</p>
-        <p>If the dropdown is available then you can decide to mark the entry as ready to push, or **need feedback from E&K here** send email reminder to address with Figshare or OAS.</p>
-        <p>Pushing the "process feedback" button on the right will asses the inputs made after your review and attempt to send the messages/articles to figshare. You will be redirected to the results page (unless i can figure out how to refresh the results on this page without another load.)</p>
+        <p>This page shows the results of the push attempt to figshare after it was marked as ready and set to push.</p>
+        <p>The link on the left will show the formatted JSON and the one next to it will take you to the original message from OA Switchboard.</p>
+        <p>The link on the right, if <span style="color:red;">red/error</span> then clicking it will show the error.</p>
+        <p>If <span style="color:blue;">blue/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
     </div>
 </div>
-<div class="row">
-    <div id="process-butt">
-        <button>process feedback</button>
-    </div>
-</div>
-<br/><br/>
+
     {% for item in attempts  %}
 
-    <div class="row" id="oa-{{item.oama_fk.id}}">
+    <div class="row">
         <div class="col-1">
-            <div class="message-id" id="message-{{item.id}}">{{item.id}}</div>
+            <div class="message-id" id="message-{{item.id}}">{{item.id}} <a href="/oaMessages#message-{{item.oama_fk.id}}">original</a></div>
         </div>
         <div class="col-7"> {{item.oama_fk.message_title}}</div>
         <div class="col-2">saved on: {{item.attempted}}</div>
@@ -55,16 +50,10 @@
         <div class="col-2">
             <div class="status-id" id="status-{{item.id}}" style="color:blue;"><a href="{{item.link}}" target="_blank">{{item.status}}</a></div>
         </div>
-	{%endif%}
+        {%endif%}
         {%if item.status == 'ready-for-push'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.id}}" style="color:orange;">
-                <select>
-                    <option>awaiting input...</option>
-                    <option>email reminder</option>
-                    <option>set to push</option>
-                </select>
-            </div>
+            <div class="status-id" id="status-{{item.id}}" style="color:orange;">{{item.status}}</div>
         </div>
         {%endif%}
     </div>
@@ -108,3 +97,4 @@
 
 </script>
 {%endblock%}
+

@@ -7,27 +7,55 @@
     .message-id:hover{cursor: pointer;}
     .status-id{text-decoration: underline;}
     .status-id:hover{cursor: pointer;}
+    #helptext{
+        margin-left:15px;
+        width:45%;
+    }
+    #pagetitle{
+        margin-left: 15px;
+    }
 </style>
 
-<h3>All OA Messages</h3>
-<ul>
+<h3 id="pagetitle">All OA Messages</h3>
+<div class="container-fluid">
+<div class="row">
+    <div id="helptext">
+        <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message.</p>
+        <p>The link on the right, if <span style="color:red;">red/error</span> then clicking it will show the error.</p>
+        <p>If <span style="color:blue;">blue/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
+        <p>If it is <span style="color:orange;">orange/duplicate</span> then the link won't do anything but just letting you be aware.</p>
+    </div>
+</div>
     {% for item in messages  %}
-    <li><span class="message-id" id="message-{{item.message_id}}">{{item.message_id}}</span> {{item.message_title}} // saved on: {{item.attempted}} || 
+        <div class="row">
+        <div class="col-1">
+            <div class="message-id" id="message-{{item.message_id}}">{{item.message_id}}</div> 
+        </div>
+            <div class="col-7">{{item.message_title}}</div> 
+            <div class="col-2">saved on: {{item.attempted}}</div>
         {%if item.status == 'ready'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:green;">{{item.status}}</span>
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.message_id}}" style="color:green;"><a href="/fsAttempts#oa-{{item.id}}">{{item.status}}</a></div>
+        </div>
         {%endif%}
         {%if item.status == 'error'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</span>
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</div>
+        </div>
         {%endif%}
         {%if item.status == 'duplicate'%}
-        <span class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</span>
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</div>
+        </div>
         {%endif%}
-    </li>
-        
-    <div class="message-json" id="json-{{item.message_id}}">{{item.message_json}}</div>
-    <div class="message-note" id="note-{{item.message_id}}">{{item.note}}</div>
+            
+        <div class="message-json col-12" id="json-{{item.message_id}}">{{item.message_json}}</div>
+        <div class="message-note col-12" id="note-{{item.message_id}}">{{item.note}}</div>
+    </div> 
+    <!-- endrow -->
     {% endfor %}
-</ul>
+</div> 
+<!-- end containerfluid -->
 
 <script type="text/javascript">
     
