@@ -16,6 +16,28 @@
         margin-left: 15px;
     }
 </style>
+<script type="text/javascript">
+    function pushToFS(){
+        email_ids = [];
+        push_ids = [];
+        $(".push-input").each(function(){
+            
+            if(this.value=="email reminder"){
+                //send a reminder email. i sure as hell won't remember.
+                message_id = parseInt(this.parentNode.id.split('-')[1]);
+                email_ids.push(message_id);
+
+            }
+
+            if(this.value == "set to push"){
+                message_id = parseInt(this.parentNode.id.split('-')[1]);
+                push_ids.push(message_id);
+                //get this id and modify the cmd to take a list of IDs instead of just doing anything with status="ready"
+            }
+        });
+        console.log(email_ids);
+    }
+</script>
 
 <h3 id="pagetitle">All figshare Messages</h3>
 <div class="container-fluid">
@@ -28,7 +50,7 @@
 </div>
 <div class="row">
     <div id="process-butt">
-        <button>process feedback</button>
+        <button onclick="pushToFS();">process feedback</button>
     </div>
 </div>
 <br/><br/>
@@ -59,7 +81,7 @@
         {%if item.status == 'ready-for-push'%}
         <div class="col-2">
             <div class="status-id" id="status-{{item.id}}" style="color:orange;">
-                <select>
+                <select class="push-input">
                     <option>awaiting input...</option>
                     <option>email reminder</option>
                     <option>set to push</option>
