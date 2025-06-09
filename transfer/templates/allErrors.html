@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .message-note,.message-json{display: none;}
+    .message-id{color:blue;text-decoration: underline;}
+    .message-id:hover{cursor: pointer;}
+    .status-id{text-decoration: underline;}
+    .status-id:hover{cursor: pointer;}
+    #helptext{
+        margin-left:15px;
+        width:45%;
+    }
+    #pagetitle{
+        margin-left: 15px;
+    }
+    #table-head{
+        border-style: double;
+    }
+    .m-note p{
+        margin-left: 25px;
+        font-style: italic;
+        color:firebrick;
+    }
+    .gray{
+        background-color: lightgray;
+    }
+</style>
+
+<h3 id="pagetitle">Oops! All Errors</h3>
+<div class="container-fluid">
+<div class="row">
+    <div id="helptext">
+        <p>These are all the errors from oa switchboard message conversions or attempts to put into figshare.</p>
+        <p>The ID link will show the json for the particular item.</p>
+        <p>The retry button will attempt to push this particular article forward.</p>
+        <h5>Common Errors</h5>
+        <h6>OA Switchboard:</h6>
+        <ul>
+            <li>couldn't find or improperly formatted orcid</li>
+            <li>no matching license</li>
+            <ul>
+                <li>cannot find the license of this article in our figshare account. it should be added and then retried</li>
+            </ul>
+            <li>missing fields</li>
+            <ul>
+                <li>probably shouldn't bother doing anything here. this is a mistake on OA Switchboards end</li>
+            </ul>
+        </ul>
+        <h6>Figshare:</h6>
+        <ul>
+            <li>There can't be 2 users having the same orcid</li>
+            <ul>
+                <li>This happens when trying to upload the article to figshare - it may be that the orcid exists already on the figshare but the name is different.</li>
+            </ul>        
+        </ul>
+    </div>
+</div>
+<br/><br/>
+
+<div class="row" id="table-head">
+    <div class="col-7">Title</div>
+    <div class="col-1">ID</div>
+    <div class="col-2">Saved On</div>
+    <div class="col-2">&nbsp;</div>
+</div>
+    {% for item in results  %}
+    <!-- 
+    0 is id
+    1 is title
+    2 is status
+    3 is note
+    4 json
+    5 dateattempted 
+    6 type
+    -->
+    
+    <!-- then it is a oa message -->
+    {% if forloop.counter|divisibleby:2 %}
+        <div class="row gray">
+    {%else%}
+        <div class="row">
+    {%endif%}
+            <div class="col-7"><b>{{item.1}}</b></div> 
+            <div class="col-1">
+                <div class="message-id" id="message-{{item.0}}">{{item.6}}: {{item.0}}</div> 
+            </div>
+            <div class="col-2">{{item.5}}</div>
+            <div class="col-2">
+                <div class="retry-conversion" id="retry-{{item.0}}"><button>retry</button></div>
+            </div>
+        <div class="message-json col-12" id="json-{{item.0}}">{{item.4}}</div>
+    </div> 
+    {% if forloop.counter|divisibleby:2 %}
+        <div class="row gray">
+    {%else%}
+        <div class="row">
+    {%endif%}
+        <div class="col-12 m-note" id="note-{{item.0}}"><p>{{item.3}}</p></div>
+    </div>
+    <!-- endrow -->
+    
+    {% endfor %}
+</div> 
+<!-- end containerfluid -->
+
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+
+        $('.message-json pre').each(function(){//let's figure out how to make this pretty later.
+            // this.innerHTML = JSON.stringify(JSON.parse(this.innerHTML),null,2);
+            // this.innerHTML =JSON.stringify(this.innerHTML, null, 2);
+            // x = JSON.parse(this.innerHTML);
+            // console.log(x);
+            // console.log(this.innerHTML);
+        });
+        $(".message-id").click(function(){
+            // console.log(this.id);
+            mess_id = this.id.split('-')[1];
+            $('#json-'+mess_id).toggle();
+        });
+        $(".status-id").click(function(){
+            console.log(this.id);
+            mess_id = this.id.split('-')[1];
+            $('#note-'+mess_id).toggle();
+        });
+        $(".retry-conversion").click(function(){
+            mess_id = this.id.split('-')[1];
+            console.log(mess_id);
+            //do ajax command that will retry this item and then reload the results of this page after getting an alert() 
+        });
+        for (var i = $(".message-json").length - 1; i >= 0; i--) {
+            jsonstr = $($(".message-json")[i]).text();
+            jsonstr = JSON.stringify(JSON.parse(jsonstr), null, 2);
+            $(".message-json")[i].innerHTML="<pre>"+jsonstr+"</pre>";
+        }
+});
+
+</script>
+{%endblock%}

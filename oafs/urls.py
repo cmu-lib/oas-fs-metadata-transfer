@@ -23,6 +23,7 @@ urlpatterns = [
     path('', views.oafsIndex, name='oafsIndex'),
     path('fsAttempts', views.fsAttempts, name='fsAttempts'),
     path('oaMessages', views.showMessages, name='showMessages'),
-    path('fsLicenses', views.showLicenses, name='showLicenses'),
-    path('fsPushResults', views.fsPushResults, name='fsPushResults'),
+    path('fsLicenses', views.showLicenses, name='showLifwfwefcenses'),
+    path('allErrors', views.allErrors, name='allErrors'),
+    path('<int:key_id>/', views.retryOAConversion, name='retryOAConversion'),
 ]
