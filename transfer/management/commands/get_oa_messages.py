@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from transfer.models import oaMessage
-from oafs.settings import secrets
+from oafs.settings import secrets,how_many_oa_messages
 import requests
 import json
 # import tempfile.NamedTemporaryFile as ntf
@@ -46,7 +46,7 @@ class Command(BaseCommand):
 
         params = {
             'startrow': str(self.startrow),
-            'maxrows': '50',
+            'maxrows': how_many_oa_messages,
             'filter': 'all',
             'orderby': 'created',
             'orderdir': 'desc',
