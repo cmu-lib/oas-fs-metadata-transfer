@@ -1,23 +1,14 @@
-i don't think this needs to be more complicated than a single script. for right now just concerned about getting things from oa into fs.
-perhaps we may want to save the IDs and determine which messages have been saved/transferred successfully and we can compare that against what's coming in...
-unclear at this point.
-but if this does need to be more robust i can see it being a small django app so emily and katie can review it would have:
-
-- links to the articles 
-- saved in a db (only metadata so nbd)
-	- for that matter what happens when these articles are updated?
-	- ya not sure how oa switchboard would be messaging about updated articles, if those do happen... 
-
-but let's just get it working
+cronjob runs `transfer/management/commands/do_everything.py`
 
 
-available licenses in our api. need to be accessed by the api.
-accessed like this `curl -X GET "https://api.figsh.com/v2/account/licenses?`
-need to do this separately and then match 
+- do_everything 
+	- get licenses from figshare
+	- get the latest oa messages, you can change setting of how many at a time in settings.how_many_oa_messages
+	- convert the oa messages to a json format that figshare likes
+	- try to push those converted messages to figshare
 
-making it a gui
+the next step will be going to check manually on figshare and also check manually here for other issues that occured in trying to process the oa switchboard messages and in the attempts to push those formatted messages to figshare.
 
-save all the messages in our db. 
 
 https://bitbucket.org/oaswitchboard/api/src/master/README.md
 https://docs.figshare.com/

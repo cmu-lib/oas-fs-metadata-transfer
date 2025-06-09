@@ -25,7 +25,6 @@ def get_secret(setting, secrets=secrets):
         error_msg = 'set the {0} env variable '.format(setting)
         raise ImproperlyConfigured(error_msg)
 
-my_ass="2439005"
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
@@ -37,7 +36,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1','apidashboard.library.cmu.edu']
 fs_base_url = "https://api.figsh.com/v2/"
-
+how_many_oa_messages = '50'
 
 
 # Application definition
