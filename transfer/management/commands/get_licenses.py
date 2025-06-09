@@ -31,8 +31,12 @@ class Command(BaseCommand):
 
         our_licenses = requests.get(fs_base_url+'account/licenses', params=params).json()
         print(our_licenses)
+        cur_licenses = repoLicense.objects.all()
         for l in our_licenses:
-            repoLicense(url = l['url'],value=l['value'],name=l['name']).save()
+            if repoLicense.objects.filter(name=l['name']).exists():
+                continue
+            else:
+                repoLicense(url = l['url'],value=l['value'],name=l['name']).save()
 
             
 
