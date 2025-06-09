@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from transfer.models import oaMessage,fsAttempt,repoLicense
-from oafs.settings import secrets, fs_base_url, my_ass
+from oafs.settings import secrets, fs_base_url
 import requests
 import json
 import re
@@ -8,7 +8,7 @@ import time
 from datetime import datetime
 
 class Command(BaseCommand):
-	token="6b062365841c10a3c38a8fda4f5704674118e84d546b8b3a8b128ca9efae7ceb86a377759f8cf8d4fe106974776f849be444f1684017bd221e495379142b5d59"
+	token=""
 	def get_token(self):
 		headers = {
 		'Content-Type': 'application/json',
@@ -34,7 +34,7 @@ class Command(BaseCommand):
 		params = {
 			'access_token': self.token,
 		}
-		response = requests.delete(fs_base_url+"account/articles/"+str(article_id)+"/authors/"+my_ass,params=params,headers=headers)
+		response = requests.delete(fs_base_url+"account/articles/"+str(article_id)+"/authors/"+secrets['figshare_user'],params=params,headers=headers)
 		print(response.__dict__)
 		response = requests.post(fs_base_url+"account/articles/"+str(article_id)+"/private_links",params=params,headers=headers).json()
 		print('private link here. if all goes well:')
