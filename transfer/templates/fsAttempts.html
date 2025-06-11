@@ -81,11 +81,12 @@
         {%if item.status == 'ready-for-push'%}
         <div class="col-2">
             <div class="status-id" id="status-{{item.id}}" style="color:orange;">
-                <select class="push-input">
+                {{item.status}}
+                <!-- <select class="push-input">
                     <option>awaiting input...</option>
                     <option>email reminder</option>
                     <option>set to push</option>
-                </select>
+                </select> -->
             </div>
         </div>
         {%endif%}

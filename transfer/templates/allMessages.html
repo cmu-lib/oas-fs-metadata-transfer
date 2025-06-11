@@ -26,6 +26,7 @@
         <p>If it is <span style="color:orange;">orange/duplicate</span> then the link won't do anything but just letting you be aware.</p>
     </div>
 </div>
+<div id="wedidit"></div>
     {% for item in messages  %}
         <div class="row">
         <div class="col-1">
@@ -41,6 +42,15 @@
         {%if item.status == 'error'%}
         <div class="col-2">
             <div class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</div>
+            <!-- <div id="retryOAConversion"
+                  hx-confirm="do you wanna try this one again?"
+                  hx-target="#wedidit"
+                  hx-swap="outerHTML">
+                    <a class="block mr-2 hover:text-gray-600"
+                        hx-retry="{% url 'retryOAConversion' item.message_id %}">
+                        retry?
+                    </a>
+            </div> -->
         </div>
         {%endif%}
         {%if item.status == 'duplicate'%}
@@ -77,6 +87,11 @@
             console.log(this.id);
             mess_id = this.id.split('-')[1];
             $('#note-'+mess_id).toggle();
+        });
+        $(".retry-conversion").click(function(){
+            mess_id = this.id.split('-')[1];
+            console.log(mess_id);
+            //do ajax command that will retry this item and then reload the results of this page after getting an alert() 
         });
         for (var i = $(".message-json").length - 1; i >= 0; i--) {
             jsonstr = $($(".message-json")[i]).text();

@@ -63,4 +63,17 @@
       .dropdown:hover .dropdown-content {
         display: block;
       }
+      .message-note,.message-json{display: none;}
+    .message-id{color:blue;text-decoration: underline;}
+    .message-id:hover{cursor: pointer;}
+    .status-id{text-decoration: underline;}
+    .status-id:hover{cursor: pointer;}
+    #process-butt{position: fixed;right:10px;z-index: 100;}
+    #helptext{
+        margin-left:15px;
+        width:45%;
+    }
+    #pagetitle{
+        margin-left: 15px;
+    }
       </style>
