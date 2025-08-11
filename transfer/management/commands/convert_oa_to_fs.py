@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from transfer.models import oaMessage,fsAttempt,repoLicense
+from transfer.models import oaMessage,fsAttempt,repoLicense #,orcidUser
 from oafs.settings import secrets, fs_base_url
 import requests
 import json
@@ -33,10 +33,10 @@ class Command(BaseCommand):
 			mj = json.loads(message.message_json)
 			# print(mj)
 			message_counter+=1
-			message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":0,"doi":"","keywords":['OA Switchboard']}
+			message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":0,"doi":"","keywords":['OA Switchboard'],"defined_type":"journal contribution","group_id":secrets['figshare_group_id']}
 			# let's get authors
 			authors = mj['data']['authors']
-
+			article_orcid_authors = []
 			for this_guy in authors:
 				# {
 				# "id": 97657,
@@ -47,10 +47,12 @@ class Command(BaseCommand):
 				# "url_name": "John_Doe",
 				# "orcid_id": "1234-5678-9123-1234"
 				# }
-				fn = self.get_val(this_guy,'firstName')
-				ln = self.get_val(this_guy,'lastName')
+				# ou = orcidUser()
+				# ou.f_name = fn = self.get_val(this_guy,'firstName')
+				# ou.l_name = ln = self.get_val(this_guy,'lastName')
 				ini = self.get_val(this_guy,'initials')
 				orcid = self.get_val(this_guy,'ORCID')
+
 				if "orcid.org" in orcid:
 				    orcid = orcid.split('/')[3]
 				    if self.orcid_match.match(orcid) is None or len(orcid.split('-'))>4:
@@ -60,14 +62,18 @@ class Command(BaseCommand):
 				# print(inst) # ex [{'name': 'Departmentof Biomedical Engineering, Carnegie MellonUniversity, Pittsburgh, Pennsylvania, United States, 15213', 'country': '', 'sourceaffiliation': '', 'ror': 'https://ror.org/05x2bcf33'}]
 				# inst = self.get_val(inst[0],'name').split(',')[0]
 				# where does inst go??? i guess we won't use it!
+				# ou.orcid = orcid
+				# ou.save()
+				# article_orcid_authors.append(ou)
 				author_dict = {"name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}
 				message_to_fs['authors'].append(author_dict)
+				
 
 			article = mj['data']['article']
 			print(article)
 			print(message.id)
 			title = article['title']
-			message_to_fs['description'] = "This article is from OA Switchboard\n" + self.get_val(article,'acknowledgement')
+			message_to_fs['description'] = "This journal contribution is published Open Access by the publisher. Follow the DOI link to retrieve a copy of the full text.\n" + self.get_val(article,'acknowledgement')
 			message_to_fs['title'] = title
 			print(str(message.id) + title)
 			if self.get_val(article,'manuscript'):
@@ -86,8 +92,8 @@ class Command(BaseCommand):
 			# get license.
 			license = repoLicense.objects.filter(name=article['vor']['license'])
 			if not license:
-				license=0
-				self.add_to_note(message,"there is no matching license. was looking for: " + article['vor']['license'],1)
+				message_to_fs['license']=44
+				self.add_to_note(message,"using default license. there is no matching license. was looking for: " + article['vor']['license'],0)
 				print("\nthere's no matching license here!!!!\n")
 			else:
 				print('yeah it matches')
@@ -113,6 +119,10 @@ class Command(BaseCommand):
 
 			fsa = fsAttempt(fs_attempt_json=json.dumps(message_to_fs), oama_fk=message)
 			fsa.save()
+			#save this attempt with the authors.
+			for author in article_orcid_authors:
+				author.articles.add(fsa)
+				author.save()
 
 	def handle(self, *args, **options):
 

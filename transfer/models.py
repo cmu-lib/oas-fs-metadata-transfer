@@ -30,7 +30,7 @@ class oaMessage(models.Model):
         return self.message_title
     
 class fsAttempt(models.Model):  
-    oama_fk = models.ForeignKey('oaMessage', on_delete=models.CASCADE ,help_text='FK for token table') #oaMessageAttempt
+    oama_fk = models.ForeignKey('oaMessage', on_delete=models.CASCADE ,help_text='FK for oamessage') #oaMessageAttempt
     fs_id = models.IntegerField(help_text="filled in after successful upload to figshare",default=0)
     # statuses: ['ready-for-push','ready-for-review','failed','published']
     status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True,default='ready-for-push')
@@ -39,3 +39,33 @@ class fsAttempt(models.Model):
     attempted= models.DateTimeField(auto_now_add=True, blank=True)
     note = models.TextField(help_text="what went wrong. what went write.",default="",null=True)
     fs_attempt_json = models.TextField(help_text="the json attempt",null=True)
+
+# class orcidUser(models.Model):
+#     f_name = models.CharField(max_length=512,help_text="whats yo name")
+#     l_name = models.CharField(max_length=512,help_text="who's yo daddy")
+#     full_name = models.CharField(max_length=512)
+#     from_orcid = models.CharField(max_length=256,default="") #is this current name from orcid
+#     orcid_x_attempted = models.DateTimeField(auto_now_add=False, default=None,null=True)
+#     #status should be fk?
+#     status = models.CharField(max_length=2048, help_text="status in case of error on user",null=True)
+#     # inst = models.CharField(max_length=512)
+#     orcid = models.CharField(max_length=256,null=True,default=None)
+#     # the id from figshare.
+#     fs_id = models.IntegerField(default=0)
+#     # if we find this user again we can add him/her/zim to other articles.
+#     articles = models.ManyToManyField(fsAttempt)
+
+# class orcidUserAlts(models.Model):
+#     ou_fk = models.ForeignKey('orcidUser',on_delete=models.CASCADE)
+#     f_name = models.CharField(max_length=512)
+#     l_name = models.CharField(max_length=512)
+#     full_name = models.CharField(max_length=512)
+
+# class errorMsg(models.Model):
+#     note = models.TextField(help_text="what went wrong. what went right.",default="",null=True)
+#     type = models.CharField(max_length=256, help_text="type of error.",default="",null=True)
+#     oama_fk = models.ForeignKey('oaMessage',null=True, on_delete=models.CASCADE ,help_text='FK for oa ') #oaMessageAttempt
+#     fs_fk = models.ForeignKey('fsAttempt', null=True, on_delete=models.CASCADE ,help_text='FK for fs') #oaMessageAttempt
+#     user_fk = models.ForeignKey('orcidUser', null=True, on_delete=models.CASCADE ,help_text='FK for users') #oaMessageAttempt
+#     level = models.IntegerField(default=0)
+#     

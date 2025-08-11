@@ -55,7 +55,7 @@ class Command(BaseCommand):
             
         if options["all"]:
             # get first batch of messages where total is also saved
-            self.delete('all')    
+            self.delete('all')
         else:
             self.delete()
         

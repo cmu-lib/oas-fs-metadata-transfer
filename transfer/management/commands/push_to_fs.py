@@ -61,18 +61,27 @@ class Command(BaseCommand):
 			print(response) 
 			# exit()
 			try:
-			    code = response['code'] #only on error is there a code thrown.
-			    if response['code'] in ['UnknownException', 'BadRequest', 'UnprocessableEntity']:
-			        print('NO ARTICLE WAS SAVED OMG')
-			        print(response)
-			        i.response = response['code']
-			        i.status = 'failed'
-			        i.note = response['message']
-			        i.save()
+				code = response['code'] #only on error is there a code thrown.
+				if response['code'] in ['UnknownException', 'BadRequest', 'UnprocessableEntity']:
+					print('NO ARTICLE WAS SAVED OMG')
+					print(response)
+					i.response = response['code']
+					i.status = 'failed'
+					i.note = response['message']
+					i.save()
+				else:
+					i.fs_id = response['entity_id']
+					i.status='ready-for-review'
+					i.save()
+					print(response)
+					# for article in articles:
+					i.link = self.cleanup(response['entity_id']) #returns link to article directly
+					i.save()
+					continue
 			except KeyError:
 				i.fs_id = response['entity_id']
 				i.status='ready-for-review'
-				print("oh boy i think it went in!")
+				i.save()
 				print(response)
 				# for article in articles:
 				i.link = self.cleanup(response['entity_id']) #returns link to article directly

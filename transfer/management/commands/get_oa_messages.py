@@ -77,9 +77,15 @@ class Command(BaseCommand):
             mess = oaMessage()
             mess.message_id = article['id']
             mess.message_json = json.dumps(article)
+            mess.save()
+            if article['header']['to']['address'] != 'https://ror.org/05x2bcf33':
+                print(" not for us.")
+                mess.status="this article was meant for: "+ article['header']['to']['address']
+                mess.save()
+                continue
             # print(type(article))
             # print(json.dumps(article))
-            mess.save()
+            
             if self.getval(article,'data') != '!!missing!!':
                 if self.getval(article['data'],'article') != '!!missing!!':
                     if self.getval(article['data']['article'],'title') != '!!missing!!':
