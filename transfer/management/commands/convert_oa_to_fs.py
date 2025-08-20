@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from transfer.models import oaMessage,fsAttempt,repoLicense #,orcidUser
-from oafs.settings import secrets, fs_base_url
+from oafs.settings import secrets, fs_base_url, in_copyright_num
 import requests
 import json
 import re
@@ -48,8 +48,8 @@ class Command(BaseCommand):
 				# "orcid_id": "1234-5678-9123-1234"
 				# }
 				# ou = orcidUser()
-				# ou.f_name = fn = self.get_val(this_guy,'firstName')
-				# ou.l_name = ln = self.get_val(this_guy,'lastName')
+				fn = self.get_val(this_guy,'firstName')
+				ln = self.get_val(this_guy,'lastName')
 				ini = self.get_val(this_guy,'initials')
 				orcid = self.get_val(this_guy,'ORCID')
 
@@ -92,7 +92,7 @@ class Command(BaseCommand):
 			# get license.
 			license = repoLicense.objects.filter(name=article['vor']['license'])
 			if not license:
-				message_to_fs['license']=44
+				message_to_fs['license']= in_copyright_num
 				self.add_to_note(message,"using default license. there is no matching license. was looking for: " + article['vor']['license'],0)
 				print("\nthere's no matching license here!!!!\n")
 			else:

@@ -25,7 +25,7 @@ class Command(BaseCommand):
 		self.token = fs_token_response['token']
 		print(self.token)
 
-	def cleanup(self,article_id): # figshare automatically adds myself as a user to articles. 
+	def cleanup(self,article_id,doi): # figshare automatically adds myself as a user to articles. 
 		# i didn't write the thing so get me out of there.
 		print('deleting publishing user')
 		headers = {
@@ -34,12 +34,19 @@ class Command(BaseCommand):
 		params = {
 			'access_token': self.token,
 		}
+		# delete the user 
 		response = requests.delete(fs_base_url+"account/articles/"+str(article_id)+"/authors/"+secrets['figshare_user'],params=params,headers=headers)
 		print(response.__dict__)
-		response = requests.post(fs_base_url+"account/articles/"+str(article_id)+"/private_links",params=params,headers=headers).json()
-		print('private link here. if all goes well:')
-		print(response['html_location'])
-		return(response['html_location'])
+		# update to have this link included
+		json_data = {
+			'link': "https://doi.org/"+doi
+		}
+		response = requests.post(fs_base_url+"account/articles/"+str(article_id)+"/files?page=&page_size=&limit=&offset=",params=params,headers=headers,json=json_data).json()
+		# get teh private link... not necessary.
+		# response = requests.post(fs_base_url+"account/articles/"+str(article_id)+"/private_links",params=params,headers=headers).json()
+		# print('private link here. if all goes well:')
+		# print(response['html_location'])
+		# return(response['html_location'])
 		
 
 
@@ -69,14 +76,17 @@ class Command(BaseCommand):
 					i.status = 'failed'
 					i.note = response['message']
 					i.save()
+					# if "License not found" in response['message']: #no license so make it 44
+					# 	i.fs_attempt_json
+
 				else:
 					i.fs_id = response['entity_id']
 					i.status='ready-for-review'
 					i.save()
 					print(response)
 					# for article in articles:
-					i.link = self.cleanup(response['entity_id']) #returns link to article directly
-					i.save()
+					self.cleanup(response['entity_id'],json.loads(i.fs_attempt_json)['doi']) #returns link to article directly
+					# i.save()
 					continue
 			except KeyError:
 				i.fs_id = response['entity_id']
@@ -84,8 +94,8 @@ class Command(BaseCommand):
 				i.save()
 				print(response)
 				# for article in articles:
-				i.link = self.cleanup(response['entity_id']) #returns link to article directly
-				i.save()
+				self.cleanup(response['entity_id'],json.loads(i.fs_attempt_json)['doi']) #returns link to article directly
+				# i.save()
 		    
 
 			    # article_up = str(response['entity_id'])

@@ -34,9 +34,11 @@ SECRET_KEY = get_secret('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','apidashboard.library.cmu.edu']
-fs_base_url = "https://api.figsh.com/v2/"
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu']
+fs_base_url = "https://api.figshare.com/v2/"
 how_many_oa_messages = '50'
+#in the production instance the license # for incopyright is 44. on the dev it is 43.
+in_copyright_num = 44
 
 
 # Application definition

@@ -14,7 +14,7 @@ def fsAttempts(request): # page to show messages after the attempt to figshare
 	return render(request,'fsAttempts.html',{'attempts':fs_attempts})
 
 def showMessages(request): # page to show messages from oaswitchboard after conversion
-	all_messages = oaMessage.objects.all().order_by('-id')
+	all_messages = oaMessage.objects.all().order_by('id')
 	return render(request, "allMessages.html",{'messages':all_messages})
 
 def showLicenses(request): # page to show licenses from figshare.
