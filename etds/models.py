@@ -25,3 +25,10 @@ class pqFsAttempt(models.Model):
     
     def __str__(self):
         return self.pqa_fk.title
+
+class fsToken(models.Model): 
+    token = models.CharField(max_length=2048, help_text="the token",null=True)
+    created = models.DateTimeField(auto_now_add=True, blank=True)
+    
+    def __str__(self):
+        return self.token

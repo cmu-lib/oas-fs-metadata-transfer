@@ -1,0 +1,445 @@
+0729,Architecture
+0462,Architectural engineering
+0390,Landscape architecture 
+0296,African American studies
+0293,African studies
+0323,American studies 
+0343,Asian American studies
+0342,Asian studies
+0361,Baltic studies
+0325,Black studies
+0385,Canadian studies
+0432,Caribbean studies
+0755,Central Asian studies
+0434,Classical studies
+0773,East Asian studies
+0437,East European studies
+0631,Ethnic studies
+0440,European studies
+0482,French Canadian culture
+0733,Gender studies
+0492,LGBTQ studies
+0737,Hispanic American studies
+0507,Holocaust studies
+0512,Islamic studies
+0751,Judaic studies
+0550,Latin American studies
+0555,Middle Eastern studies
+0740,Native American studies
+0559,Near Eastern studies
+0560,North African studies
+0561,Pacific Rim studies
+0604,Regional studies
+0613,Scandinavian studies
+0211,Sexuality
+0614,Slavic studies
+0654,South African studies
+0638,South Asian studies
+0222,Southeast Asian studies
+0639,Sub Saharan Africa studies
+0453,Women's studies
+0272,Accounting
+0424,Arts management
+0770,Banking
+0310,Business administration
+0429,Entrepreneurship
+0508,Finance
+0801,Hospitality, Leisure, and Tourism Studies
+0454,Management
+0338,Marketing
+0430,Sports management
+0459,Communication
+0723,Information Science
+0646,Internet and social media studies
+0391,Journalism
+0399,Library science
+0643,Technical communication
+0516,Adult education
+0273,Art education
+0282,Bilingual education
+0688,Business education
+0747,Career & technical education
+0275,Community college education
+0651,Continuing education
+0727,Curriculum development
+0518,Early childhood education
+0515,Education
+0520,Education history
+0277,Educational finance
+0458,Education policy
+0514,Educational administration
+0443,Educational evaluation
+0449,Educational leadership
+0998,Education philosophy
+0525,Educational psychology
+0340,Educational sociology
+0710,Educational technology
+0288,Educational tests & measurements
+0524,Elementary education
+0441,English as a second language
+0444,Foreign language education
+0445,Gifted education
+0680,Health education
+0745,Higher education
+0446,Higher education administration
+0447,Instructional design
+0279,Language arts
+0280,Mathematics education
+0450,Middle school education
+0455,Multicultural education
+522,Music education
+0456,Pedagogy
+0457,Performing arts education
+0523,Physical education
+0535,Reading instruction
+0527,Religious education
+0519,School counseling
+0714,Science education
+0533,Secondary education
+0534,Social sciences education
+0529,Special education
+0530,Teacher education
+0365,Art criticism 
+0377,Art history 
+0435,Cinematography
+0378,Dance
+0389,Design
+0200,Fashion
+0900,Film, television, and media studies
+0357,Fine arts
+0413,Music
+0214,Musical composition
+0943,Musical performance
+0208,Music history
+0221,Music theory
+0641,Performing arts
+0465,Theatre
+0644,Theatre history
+0331,African history
+0337,American history
+0579,Ancient history 
+0332,Asian history
+0328,Black history
+0334,Canadian history
+0335,European history
+0578,History
+0504,History of Oceania
+0336,Latin American history
+0581,Medieval history
+0333,Middle Eastern history
+0722,Military history
+0582,Modern history
+0724,Russian history
+0585,Science history
+0506,World history
+0363,Alternative energy
+0304,Biographies
+0404,Climate change
+0436,Cultural resources management
+0201,Disability studies
+0791,Energy
+0386,Family and consumer sciences
+0359,Food science
+0774,Forensic sciences
+0489,Information technology
+0730,Museum studies
+0640,Sustainability
+0994,Textile research
+0746,Wood sciences
+0316,African literature
+0591,American literature
+0289,Ancient languages
+0305,Asian literature
+0356,Australian literature
+0593,British & Irish literature
+0352,Canadian literature
+0360,Caribbean literature
+0762,Chinese literature
+0294,Classical literature
+0295,Comparative literature
+0203,Creative writing
+0355,French Canadian literature
+0205,French literature
+0311,German literature
+0362,Icelandic & Scandinavian literature
+0220,Italian literature
+0760,Japanese literature
+0761,Korean literature
+0679,Language
+0312,Latin American literature 
+0290,Linguistics
+0401,Literature
+0297,Medieval literature
+0315,Middle Eastern literature
+0291,Modern language
+0298,Modern literature
+0763,Periodical literature
+0681,Rhetoric
+0313,Romance literature
+0764,Russian literature
+0314,Slavic literature
+0772,Spanish literature
+0213,Translation studies
+0649,Alternative dispute resolution
+0513,Intellectual property
+0616,International law 
+0398,Law
+0206,Law enforcement 
+0562,Patent law
+0650,Aesthetics
+0321,Biblical studies
+0375,Canon law
+0319,Clergy
+0618,Comparative religion
+0376,Divinity
+0393,Epistemology
+0394,Ethics
+0395,Logic
+0396,Metaphysics
+0397,Pastoral counselling
+0422,Philosophy
+0322,Philosophy of religion
+0402,Philosophy of science
+0318,Religion
+0320,Religious history
+0647,Spirituality
+0469,Theology
+0324,Archaeology
+0341,Area planning and development 
+0505,Commerce-business
+0627,Criminology
+0326,Cultural anthropology
+0938,Demography
+0509,Economic history
+0511,Economic theory
+0501,Economics
+0358,Folklore
+0339,Forensic anthropology
+0759,Forensic sciences 
+0366,Geography
+0741,Indigenous studies
+0628,Individual & family studies
+0601,International relations
+0510,Labor economics
+0629,Labor relations
+0750,Military studies
+0635,Organization theory
+0703,Organizational behavior
+0563,Peace studies
+0327,Physical anthropology
+0615,Political science
+0617,Public administration
+0630,Public policy
+0814,Recreation
+0344,Social research
+0700,Social structure
+0452,Social work
+0636,Sociolinguistics
+0626,Sociology
+0709,Transportation
+0999,Urban planning
+0473,Agriculture
+0503,Agriculture economics
+0517,Agriculture education 
+0539,Agriculture engineering 
+0285,Agronomy
+0476,Animal diseases
+0475,Animal sciences
+0792,Aquatic sciences
+0478,Forestry
+0471,Horticulture
+0480,Plant pathology
+0479,Plant sciences
+0777,Range management 
+0481,Soil sciences
+0281,Urban forestry
+0286,Wildlife management
+0754,Art therapy
+0384,Behavioral psychology
+0602,Behavioral sciences
+0622,Clinical psychology
+0633,Cognitive psychology
+0603,Counseling psychology
+0620,Developmental psychology
+0623,Experimental psychology
+0624,Occupational psychology
+0625,Personality psychology
+0989,Physiology psychology
+0349,Psychobiology
+0621,Psychology
+0632,Quantitative psychology
+0451,Social psychology
+0487,Biochemistry
+0715,Bioinformatics
+0306,Biology
+0648,Biomechanics
+0786,Biophysics
+0308,Biostatistics
+0309,Botany
+0379,Cellular biology
+0758,Developmental biology
+0409,Endocrinology
+0353,Entomology
+0412,Evolution & development 
+0369,Genetics
+0414,Histology
+0793,Limnology
+0410,Microbiology
+0307,Molecular biology
+0287,Morphology
+0317,Neurosciences
+0718,Parasitology
+0719,Physiology 
+0423,Systematic biology
+0720,Virology
+0472,Zoology
+0329,Ecology
+0420,Macroecology
+0426,Paleoecology
+0538,Aerospace engineering
+0800,Artificial intelligence
+0540,Automotive engineering
+0202,Bioengineering
+0541,Biomedical engineering
+0542,Chemical engineering
+0543,Civil engineering
+0464,Computer engineering
+0984,Computer science 
+0544,Electrical engineering
+0537,Engineering
+0466,Geological engineering
+0467,Geophysical engineering 
+0428,Geotechnology 
+0218,Hydraulic engineering 
+0546,Industrial engineering
+0548,Mechanical engineering 
+0551,Mining
+0468,Naval engineering
+0652,Nanotechnology
+0552,Nuclear engineering
+0547,Ocean engineering 
+0796,Operations research
+0549,Packaging 
+0765,Petroleum engineering
+0795,Plastics
+0771,Robotics
+0790,Systems science
+0408,Conservation biology 
+0438,Environmental economics
+0442,Environmental education 
+0775,Environmental engineering
+0407,Environmental geology
+0470,Environmental health 
+0619,Environmental justice 
+0439,Environmental law 
+0474,Environmental management 
+0392,Environmental philosophy
+0768,Environmental science 
+0477,Environmental studies
+0536,Land use planning 
+0528,Natural resource management 
+0595,Water resources management
+0284,Wildlife conservation
+0367,Aeronomy
+0371,Atmospheric chemistry
+0725,Atmospheric sciences
+0425,Biogeochemistry 
+0416,Biological oceanography
+0403,Chemical oceanography
+0406,Continental dynamics
+0483,Geobiology
+0996,Geochemistry
+0370,Geographic information science
+0372,Geology
+0484,Geomorphology
+0373,Geophysics
+0388,Hydrologic sciences
+0556,Marie geology
+0557,Meteorology
+0411,Mineralogy
+0653,Paleoclimate science
+0418,Paleontology 
+0583,Petroleum geology 
+0584,Petrology 
+0368,Physical geography 
+0415,Physical oceanography
+0590,Planetology
+0592,Plate tectonics 
+0799,Remote sensing 
+0594,Sedimentary geology
+0493,Aging
+0496,Alternative medicine
+0300,Audiology
+0567,Dentistry
+0757,Dermatology
+0766,Epidemiology
+0575,Exercise, kinesiology, and sports medicine
+0351,Gerontology
+0769,Healthcare management
+0566,Health sciences
+0982,Immunology
+0497,Medical ethics 
+0574,Medical imaging
+0207,Medical personnel
+0564,Medicine
+0347,Mental health 
+0209,Music therapy
+0569,Nursing
+0570,Nutrition
+0380,Obstetrics & gynecology
+0354,Occupational safety
+0498,Occupational therapy
+0992,Oncology
+0381,Ophthalmology 
+0210,Optometry
+0499,Osteopathic medicine
+0571,Pathology 
+0767,Pediatrics
+0572,Pharmaceutical sciences
+0419,Pharmacology
+0382,Physical therapy
+0573,Public health
+0500,Public health education
+0460,Speech therapy
+0576,Surgery
+0212,Therapy
+0383,Toxicology
+0778,Veterinary services
+0986,Acoustics
+0749,Agricultural chemistry
+0486,Analytical chemistry
+0364,Applied mathematics
+0215,Applied physics
+0606,Astronomy
+0596,Astrophysics
+0748,Atomic physics 
+0485,Chemistry
+0219,Computational chemistry
+0216,Computational physics
+0611,Condensed matter physics
+0607,Electromagnetics
+0204,Fluid mechanics
+0597,High temperature physics
+0488,Inorganic chemistry
+0598,Low temperature physics
+0794,Materials science
+0405,Mathematics
+0346,Mechanics
+0431,Molecular chemistry
+0609,Molecular physics
+0565,Nanoscience
+0738,Nuclear chemistry
+0756,Nuclear physics
+0752,Optics 
+0490,Organic chemistry
+0798,Particle physics
+0494,Physical chemistry
+0605,Physics
+0759,Plasma physics
+0495,Polymer chemistry
+0599,Quantum physics
+0217,Statistical physics 
+0463,Statistics
+0642,Theoretical mathematics
+0753,Theoretical physics
+0348,Thermodynamics

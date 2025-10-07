@@ -16,14 +16,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from transfer import views
+from transfer.views import oafsIndex, fsAttempts, showMessages, showLicenses, allErrors, retryOAConversion
+from etds.views import pqFsAttempts
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.oafsIndex, name='oafsIndex'),
-    path('fsAttempts', views.fsAttempts, name='fsAttempts'),
-    path('oaMessages', views.showMessages, name='showMessages'),
-    path('fsLicenses', views.showLicenses, name='showLicenses'),
-    path('allErrors', views.allErrors, name='allErrors'),
-    path('<int:key_id>/', views.retryOAConversion, name='retryOAConversion'),
+    path('', oafsIndex, name='oafsIndex'),
+    path('fsAttempts', fsAttempts, name='fsAttempts'),
+    path('oaMessages', showMessages, name='showMessages'),
+    path('fsLicenses', showLicenses, name='showLicenses'),
+    path('allErrors', allErrors, name='allErrors'),
+    path('pqFsAttempts', pqFsAttempts, name='pqFsAttempts'),
+    path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

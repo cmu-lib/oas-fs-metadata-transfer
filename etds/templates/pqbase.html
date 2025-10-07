@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- <link rel="stylesheet" href="style.css"> -->
+    <h1><center>Proquest -> Figshare</center></h1>
+    <title>{% block title %}ETD transfer interface{% endblock %}</title>
+{% load static %}
+<script type="text/javascript" src="{% static 'js/jQuery.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/bootstrap.min.js' %}"></script>
+
+<link type="text/css" rel="stylesheet" href="{% static 'css/style.css' %}" media="screen">
+<link type="text/css" rel="stylesheet" href="{% static 'css/bootstrap.css' %}" media="screen">
+
+
+<!-- <script type="text/javascript" src="https://code.jquery.com/jquery-3.7.1.min.js"></script> -->
+
+     
+</head>
+
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
+    >
+
+
+        {% block content %}
+        {% endblock %}
+<script type="text/javascript" src="{% static 'js/htmx.js' %}"></script>
+</body>
+</html>
+
+

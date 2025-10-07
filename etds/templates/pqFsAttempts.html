@@ -1,0 +1,127 @@
+{% extends "pqbase.html" %}
+
+{% block content %}
+<style>
+    .message-note,.message-json{display: none;}
+    .message-id{color:blue;text-decoration: underline;}
+    .message-id:hover{cursor: pointer;}
+    .status-id{text-decoration: underline;}
+    .status-id:hover{cursor: pointer;}
+    #process-butt{position: fixed;right:10px;z-index: 100;}
+    #helptext{
+        margin-left:15px;
+        width:45%;
+    }
+    #pagetitle{
+        margin-left: 15px;
+    }
+</style>
+<script type="text/javascript">
+    function pushToFS(){
+        email_ids = [];
+        push_ids = [];
+        $(".push-input").each(function(){
+            
+            if(this.value=="email reminder"){
+                //send a reminder email. i sure as hell won't remember.
+                message_id = parseInt(this.parentNode.id.split('-')[1]);
+                email_ids.push(message_id);
+
+            }
+
+            if(this.value == "set to push"){
+                message_id = parseInt(this.parentNode.id.split('-')[1]);
+                push_ids.push(message_id);
+                //get this id and modify the cmd to take a list of IDs instead of just doing anything with status="ready"
+            }
+        });
+        console.log(email_ids);
+    }
+</script>
+
+<h3 id="pagetitle">All Proquest ETD push attempts</h3>
+<div class="container-fluid">
+<div class="row">
+    <div id="helptext">
+        <p>This displays a list of all etds that were pushed and any errors that came up.</p>
+    </div>
+</div>
+
+<br/><br/>
+    {% for item in attempts  %}
+
+    <div class="row" id="oa-{{item.oama_fk.id}}">
+        <div class="col-1">
+            <div class="message-id" id="message-{{item.id}}">{{item.id}}</div>
+        </div>
+        <div class="col-7"> {{item.oama_fk.message_title}}</div>
+        <div class="col-2">saved on: {{item.attempted}}</div>
+
+        {%if item.status == 'published'%} 
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.id}}" style="color:green;">{{item.status}}</div>
+        </div>
+        {%endif%}
+        {%if item.status == 'failed'%}
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.id}}" style="color:red;">{{item.status}}</div>
+        </div>
+        {%endif%}
+        {%if item.status == 'ready-for-review'%}
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.id}}" style="color:blue;"><a href="{{item.link}}" target="_blank">{{item.status}}</a></div>
+        </div>
+	{%endif%}
+        {%if item.status == 'ready-for-push'%}
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.id}}" style="color:orange;">
+                {{item.status}}
+                <!-- <select class="push-input">
+                    <option>awaiting input...</option>
+                    <option>email reminder</option>
+                    <option>set to push</option>
+                </select> -->
+            </div>
+        </div>
+        {%endif%}
+    </div>
+        
+    <div class="message-json col-12" id="json-{{item.id}}">{{item.fs_attempt_json}}</div>
+    <div class="message-note col-12" id="note-{{item.id}}">{{item.note}}</div>
+    {% endfor %}
+</div> 
+<!-- end containerfluid -->
+
+<script type="text/javascript">
+    
+    $(document).ready(function(){
+
+        $('.message-json pre').each(function(){//let's figure out how to make this pretty later.
+            // this.innerHTML = JSON.stringify(JSON.parse(this.innerHTML),null,2);
+            this.innerHTML =JSON.stringify(this.innerHTML, null, 2);
+            // x = JSON.parse(this.innerHTML);
+            // console.log(x);
+            // console.log(this.innerHTML);
+        });
+        $(".message-id").click(function(){
+            // console.log(this.id);
+            mess_id = this.id.split('-')[1];
+            $('#json-'+mess_id).toggle();
+        });
+        $(".status-id").click(function(){
+            mess_id = this.id.split('-')[1];
+            $('#note-'+mess_id).toggle();
+        });
+
+        //make it pretty. i'm sure there's a cleaner way of doing this on the backend but
+        //whatever
+        for (var i = $(".message-json").length - 1; i >= 0; i--) {
+            jsonstr = $($(".message-json")[i]).text();
+            jsonstr = JSON.stringify(JSON.parse(jsonstr), null, 2);
+            $(".message-json")[i].innerHTML="<pre>"+jsonstr+"</pre>";
+        }
+        
+});
+
+</script>
+{%endblock%}

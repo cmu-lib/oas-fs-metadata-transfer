@@ -35,10 +35,12 @@ SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu']
-fs_base_url = "https://api.figshare.com/v2/"
+fs_base_url = "https://api.figsh.com/v2/" #dev
+# fs_base_url = "https://api.figshare.com/v2/" #prod
 how_many_oa_messages = '50'
-#in the production instance the license # for incopyright is 44. on the dev it is 43.
-in_copyright_num = 44
+#in the production instance the license # for incopyright is 43. on the dev it is 44.
+# in_copyright_num = 43 #prod
+in_copyright_num = 44 #dev
 
 
 # Application definition
@@ -50,7 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transfer'
+    'transfer',
+    'etds'
+
 ]
 
 MIDDLEWARE = [
