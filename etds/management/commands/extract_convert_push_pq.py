@@ -323,7 +323,7 @@ class Command(BaseCommand):
 			response = requests.put(fs_base_url+"account/articles/"+str(article_id)+"/embargo",params=params,headers=headers,data=json.dumps({'is_embargoed':figshare_json['is_embargoed'],'embargo_date':figshare_json['embargo_date'],'embargo_type':figshare_json['embargo_type']}))
 			pqfs.status = 'updated-embargo'
 			pqfs.save()
-		return()
+		# return()
 		# Then we upload the file.
 		file_info = self.initiate_new_upload(article_id, file_location)
 		# Until here we used the figshare API; following lines use the figshare upload service API.
@@ -334,11 +334,14 @@ class Command(BaseCommand):
 		pqfs.save()
 
 
-	#LET'S GO
+	#LET'S F%(*ING GO
 	def handle(self, *args, **options):
-        
+		zt = pqAttempt.objects.all().values_list('zip_title', flat=True)
 		for z_thesis in self.ziplist:
 			if '.zip' not in z_thesis: # its not a zip.
+				continue
+			if z_thesis in zt:
+				print(z_thesis+" has already been attempted. skipping.")
 				continue
 			print('working on '+z_thesis)
 			data_dict = {}
