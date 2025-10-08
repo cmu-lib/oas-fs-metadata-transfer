@@ -26,6 +26,6 @@ urlpatterns = [
     path('oaMessages', showMessages, name='showMessages'),
     path('fsLicenses', showLicenses, name='showLicenses'),
     path('allErrors', allErrors, name='allErrors'),
-    path('pqFsAttempts', pqFsAttempts, name='pqFsAttempts'),
+    path('proquest/attempts', pqFsAttempts, name='pqFsAttempts'),
     path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

@@ -257,7 +257,7 @@ class Command(BaseCommand):
 		dept_name = data_dict[self.p+"description"][self.p+'institution'][self.p+"inst_contact"]
 		# print(dept_name)
 		if dept_name not in self.department_degree_name:
-			pqfs.note += "department name in options: "+dept_name+". "
+			pqfs.note += "department name was not in options: "+dept_name+". "
 			pqfs.save() # alert to this because we should be able to add more department names to fs.
 
 

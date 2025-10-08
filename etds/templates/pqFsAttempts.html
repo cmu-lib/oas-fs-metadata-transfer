@@ -44,6 +44,9 @@
 <div class="row">
     <div id="helptext">
         <p>This displays a list of all etds that were pushed and any errors that came up.</p>
+        <p>the left blue link will display the json that went into figshare.</p>
+        <p>the blue id is the one from proquest if we need to identify it.</p>
+        <p>the right link will display any notes about the attempt and shows the state where the processed stopped. Success means that it went to figshare successfully.</p>
     </div>
 </div>
 
@@ -52,30 +55,14 @@
 
     <div class="row" id="oa-{{item.oama_fk.id}}">
         <div class="col-1">
-            <div class="message-id" id="message-{{item.id}}">{{item.id}}</div>
+            <div class="message-id" id="message-{{item.id}}">{{item.pqa_fk.pq_id}}</div>
         </div>
-        <div class="col-7"> {{item.oama_fk.message_title}}</div>
+        <div class="col-7"> {{item.pqa_fk.title}} <span style="font-size:.8em; color:gray">({{item.pqa_fk.zip_title}})</span></div>
         <div class="col-2">saved on: {{item.attempted}}</div>
 
-        {%if item.status == 'published'%} 
         <div class="col-2">
-            <div class="status-id" id="status-{{item.id}}" style="color:green;">{{item.status}}</div>
-        </div>
-        {%endif%}
-        {%if item.status == 'failed'%}
-        <div class="col-2">
-            <div class="status-id" id="status-{{item.id}}" style="color:red;">{{item.status}}</div>
-        </div>
-        {%endif%}
-        {%if item.status == 'ready-for-review'%}
-        <div class="col-2">
-            <div class="status-id" id="status-{{item.id}}" style="color:blue;"><a href="{{item.link}}" target="_blank">{{item.status}}</a></div>
-        </div>
-	{%endif%}
-        {%if item.status == 'ready-for-push'%}
-        <div class="col-2">
-            <div class="status-id" id="status-{{item.id}}" style="color:orange;">
-                {{item.status}}
+            <div class="status-id" id="status-{{item.id}}">
+                stopped at: {{item.status}}
                 <!-- <select class="push-input">
                     <option>awaiting input...</option>
                     <option>email reminder</option>
@@ -83,7 +70,6 @@
                 </select> -->
             </div>
         </div>
-        {%endif%}
     </div>
         
     <div class="message-json col-12" id="json-{{item.id}}">{{item.fs_attempt_json}}</div>
