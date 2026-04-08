@@ -30,8 +30,7 @@ class Command(BaseCommand):
         }
 
         our_licenses = requests.get(fs_base_url+'account/licenses', params=params).json()
-        print(our_licenses)
-        cur_licenses = repoLicense.objects.all()
+
         for l in our_licenses:
             if repoLicense.objects.filter(name=l['name']).exists():
                 continue
