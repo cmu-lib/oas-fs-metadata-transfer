@@ -16,7 +16,12 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-with open(str(BASE_DIR)+'/secrets.json') as f:
+is_dev = False
+if is_dev:
+    secrets_file = str(BASE_DIR)+'/secrets_dev.json'
+else:
+    secrets_file = str(BASE_DIR)+'/secrets.json'
+with open(secrets_file) as f:
     secrets = json.loads(f.read())
 def get_secret(setting, secrets=secrets):
     try:
@@ -35,10 +40,11 @@ SECRET_KEY = get_secret('SECRET_KEY')
 DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu']
-fs_base_url = "https://api.figshare.com/v2/"
+fs_base_url = get_secret('fs_base_url')
+#in the production instance the license # for incopyright is 43. on the dev it is 44.
+in_copyright_num = get_secret('in_copyright_num')
 how_many_oa_messages = '50'
-#in the production instance the license # for incopyright is 44. on the dev it is 43.
-in_copyright_num = 44
+
 
 
 # Application definition
@@ -50,7 +56,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transfer'
+    'transfer',
+    'etds'
+
 ]
 
 MIDDLEWARE = [

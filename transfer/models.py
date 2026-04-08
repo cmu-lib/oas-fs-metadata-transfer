@@ -33,6 +33,7 @@ class fsAttempt(models.Model):
     oama_fk = models.ForeignKey('oaMessage', on_delete=models.CASCADE ,help_text='FK for oamessage') #oaMessageAttempt
     fs_id = models.IntegerField(help_text="filled in after successful upload to figshare",default=0)
     # statuses: ['ready-for-push','ready-for-review','failed','published']
+    doi = models.CharField(max_length=123, help_text="for comparing duplicate/revisions",null=False,default='0')
     status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True,default='ready-for-push')
     response = models.CharField(max_length=2048, help_text="response status from FS",null=True,default='')
     link = models.CharField(max_length=1024, help_text="link created for reference on fs",null=True)
