@@ -58,7 +58,12 @@
             <div class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</div>
         </div>
         {%endif%}
-            
+        {%if item.status == 'done' or item.status == 'failed during push'%}
+        <div class="col-2">
+            <div class="status-id" id="status-{{item.message_id}}" style="color:green;">{{item.status}}</div>
+        </div>
+        {%endif%}
+
         <div class="message-json col-12" id="json-{{item.message_id}}">{{item.message_json}}</div>
         <div class="message-note col-12" id="note-{{item.message_id}}">{{item.note}}</div>
     </div> 

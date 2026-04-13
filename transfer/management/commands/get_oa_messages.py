@@ -30,7 +30,7 @@ class Command(BaseCommand):
         }
 
         json_data = {
-            'email': secrets['oa_switchboard_email'],
+            'email': secrets['oa_switchboard_email'],\
             'password': secrets['oa_switchboard_pw'],
         }
 
@@ -53,6 +53,8 @@ class Command(BaseCommand):
         }
 
         oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
+        print(params)
+        print("why cant you show me this thing")
         self.stdout.write(json.dumps(oa_messages))
         # if self.getval(oa_messages,'message') is True: #there was a message
         #     self.stdout.write("boooo something broke")
@@ -66,10 +68,15 @@ class Command(BaseCommand):
 
     def save_messages(self,messages):
         last_mess = 0
+        already_here_count = 0
         for i, article in enumerate(messages['messages']):
             # put in a check to see if this particular message exists already
             if oaMessage.objects.filter(message_id=article['id']):#this article exists already
-                self.stdout.write('its here already')
+                self.stdout.write('it\'s here already')
+                already_here_count+=1
+                if already_here_count>5:
+                    print('we got enough')
+                    exit()
                 continue
             elif article['type'] == "p2":
                 self.stdout.write('it is p2.')
@@ -117,6 +124,7 @@ class Command(BaseCommand):
                     last_mess.save()
                 else:
                     mess.status="duplicate"
+            
             mess.save()
             last_mess = mess
             

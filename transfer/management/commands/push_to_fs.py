@@ -35,6 +35,7 @@ class Command(BaseCommand):
 			'access_token': self.token,
 		}
 		# delete the user 
+		# time.sleep(3) # why don't you see this thing?
 		response = requests.delete(fs_base_url+"account/articles/"+str(article_id)+"/authors/"+secrets['figshare_user'],params=params,headers=headers)
 		print(response.__dict__)
 		# update to have this link included
@@ -52,6 +53,7 @@ class Command(BaseCommand):
 
 	def push_messages(self):
 		into_messages = fsAttempt.objects.filter(status='ready-for-push')
+		print(into_messages)
 		headers = {
 		    'Content-Type': 'application/json',
 		}
@@ -75,14 +77,18 @@ class Command(BaseCommand):
 					i.response = response['code']
 					i.status = 'failed'
 					i.note = response['message']
+					i.oama_fk.status='failed during push'
 					i.save()
+					i.oama_fk.save()
 					# if "License not found" in response['message']: #no license so make it 44
 					# 	i.fs_attempt_json
 
 				else:
 					i.fs_id = response['entity_id']
 					i.status='ready-for-review'
+					i.oama_fk.status='done'
 					i.save()
+					i.oama_fk.save()
 					print(response)
 					# for article in articles:
 					self.cleanup(response['entity_id'],json.loads(i.fs_attempt_json)['doi']) #returns link to article directly
@@ -91,7 +97,9 @@ class Command(BaseCommand):
 			except KeyError:
 				i.fs_id = response['entity_id']
 				i.status='ready-for-review'
+				i.oama_fk.status='done'
 				i.save()
+				i.oama_fk.save()
 				print(response)
 				# for article in articles:
 				self.cleanup(response['entity_id'],json.loads(i.fs_attempt_json)['doi']) #returns link to article directly
