@@ -4,8 +4,9 @@ class pqAttempt(models.Model):
     zip_title = models.CharField(max_length=1024, help_text='title of the zip',null=True)
     pq_id = models.IntegerField(help_text="id of the preprint",default=0)
     pq_json = models.TextField(help_text="the json convert",null=True)
+    other_files = models.TextField(help_text="other files that were included in the zip",null=True)
     title = models.CharField(max_length=2048, help_text="title of the preprint",null=True)
-    received = models.DateTimeField(auto_now_add=True, blank=True)
+    date_saved = models.DateTimeField(auto_now_add=True, blank=True)
     note = models.TextField(help_text="what went wrong. what went write.",default="",null=True)
     status = models.CharField(max_length=2048, help_text="status and maybe error message",null=True,default='ready-for-push')
     

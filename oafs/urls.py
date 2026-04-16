@@ -15,9 +15,8 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from transfer.views import oafsIndex, fsAttempts, showMessages, showLicenses, allErrors, retryOAConversion
-from etds.views import pqFsAttempts
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +25,6 @@ urlpatterns = [
     path('oaMessages', showMessages, name='showMessages'),
     path('fsLicenses', showLicenses, name='showLicenses'),
     path('allErrors', allErrors, name='allErrors'),
-    path('proquest/attempts', pqFsAttempts, name='pqFsAttempts'),
+    path('etds/', include('etds.urls')),
     path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

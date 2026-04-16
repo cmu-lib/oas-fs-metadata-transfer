@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from etds.models import pqAttempt,pqFsAttempt,fsToken
-from oafs.settings import secrets,BASE_DIR,fs_base_url
+from oafs.settings import BASE_DIR
 import json
 import os
 import re
@@ -13,17 +13,39 @@ from zipfile import ZipFile
 from requests.exceptions import HTTPError
 import hashlib
 import csv
+import shutil
+# import xml_to_json
 
 class Command(BaseCommand):
 
-	# set some vars to be used 
-	# BASE_DIR = Path(__file__).resolve().parent
-	p = "DISS_" #idk why pq wants to use this as a prefix for literally everything... WE GET IT
-	file_location ="zippies/working/"
+	# set vars
+	BASE_DIR = Path(__file__).resolve().parent
+	ziplist = os.listdir(str(BASE_DIR)+'/../../zippies')
+	p = "DISS_" #idk why pq wants to use this as a prefix for literally every field
+	working_files_location =str(BASE_DIR)+"/working/"
 	CHUNK_SIZE = 1048576
-
-	# list of categories from ANZSRC https://www.abs.gov.au/statistics/people/education/anzsco-australian-and-new-zealand-standard-classification-occupations/latest-release#data-downloads
-	# which is what figshare respects. 
+	fs_base_url=""
+	upload_file = ""
+	
+	# secret vars 
+	with open(str(BASE_DIR)+'/../../../pq_secrets.json') as f:
+		secrets = json.loads(f.read())
+	if secrets['is_dev']:
+		fs_base_url= "https://api.figsh.com/v2/"
+		in_copyright = 44
+		group_id = secrets["figshare_group_id_dev"]
+		figshare_client_id = secrets["figshare_client_id_dev"]
+		figshare_client_secret = secrets["figshare_client_secret_dev"]
+		figshare_user = secrets["figshare_user_dev"]
+	else:
+		fs_base_url= "https://api.figshare.com/v2/"
+		in_copyright = 43
+		group_id = secrets["figshare_group_id_prod"]
+		figshare_client_id = secrets["figshare_client_id_prod"]
+		figshare_client_secret = secrets["figshare_client_secret_prod"]
+		figshare_user = secrets["figshare_user_prod"]
+	print(figshare_client_id)
+	print("AAAAAAAAAAAAAAA\n\n\n")
 	department_categories = []
 	department_ids = []
 	with open('etds/subjects/ANZSRC.csv', newline='') as csvfile:
@@ -34,14 +56,6 @@ class Command(BaseCommand):
 	# department_categories = ["Architecture","Art","Biological Sciences","Biomedical Engineering","Center for the Neural Basis of Cognition","Chemical Engineering","Chemistry","Civil and Environmental Engineering","Computer Science","Design","Economics","Electrical and Computer Engineering","Engineering and Public Policy","English","History","Human-Computer Interaction Institute","Information Networking Institute","Information Systems and Management","Institute for Software Research","Language Technologies Institute","Machine Learning","Materials Science and Engineering","Mathematical Sciences","Mechanical Engineering"]
 	department_degree_name = ["Doctor of Philosophy (PhD)", "Master of Architecture (MArch)", "Master of Arts (MA)", "Master of Arts Management (MAM)", "Master of Design (MDes)", "Master of Entertainment Technology (MET)", "Master of Information Systems Management (MISM)", "Master of Product Development (MPD)", "Master of Science (MS)", "Master of Science in Chemical Engineering (MSChE)", "Master of Science in Information Security Policy and Management (MSISPM)", "Master of Science in Information Technology (MSIT)", "Master of Science in Public Policy and Management (MSPPM)", "Master of Science in Sustainable Design (MSSD)", "Master of Urban Planning (MUP)", "Master of Statistical Practice (MSP)", "Master of Fine Arts (MFA)"]
 	degree_type_dev = ["Master's Thesis","Dissertation","Ph.D."]
-
-	# secret vars 
-	with open(str(BASE_DIR)+'/secrets.json') as f:
-		secrets = json.loads(f.read())
-	ziplist = os.listdir(str(BASE_DIR)+'/etds/zippies')
-
-	# ^^ main vars.
-
 
 
 	# func to convert xml to json dict
@@ -67,14 +81,15 @@ class Command(BaseCommand):
 			except ValueError:
 				data = response.content
 		except HTTPError as error:
-			print('Caught an HTTPError: {}'.format(error.message))
+			print('HTTP error occurred: {}'.format(error))
+			# print('Caught an HTTPError: {}'.format(error.message))
 			print('Body:\n', response.content)
 			raise
 
 		return data
 
 	def issue_request(self, method, endpoint, *args, **kwargs):
-		return self.raw_issue_request(method, fs_base_url+endpoint, *args, **kwargs)
+		return self.raw_issue_request(method, self.fs_base_url+endpoint, *args, **kwargs)
 
 	def upload_parts(self, file_info,file_location):
 		url = '{upload_url}'.format(**file_info)
@@ -131,12 +146,12 @@ class Command(BaseCommand):
 				}
 
 		json_data = {
-		'client_id': secrets['figshare_client_id'],
-		'client_secret': secrets['figshare_client_secret'],
+		'client_id': self.figshare_client_id,
+		'client_secret': self.figshare_client_secret,
 		'grant_type': 'client_credentials',
 		}
 
-		fs_token_response = requests.post(fs_base_url+'token', headers=headers, json=json_data).json()
+		fs_token_response = requests.post(self.fs_base_url+'token', headers=headers, json=json_data).json()
 		print(json.dumps(fs_token_response))
 		
 		token = fs_token_response['token']
@@ -186,7 +201,7 @@ class Command(BaseCommand):
 
 	# main work of converting fields from proquest dict to figshare dict
 	def convert_pq_to_fs(self,data_dict,pqfs=None):
-		figshare_json = {'authors':[],'keywords':[],"defined_type":"thesis","group_id":secrets["figshare_group_id_dev"]}
+		figshare_json = {'authors':[],'keywords':[],"defined_type":"thesis","group_id":self.group_id}
 		# authors first
 		authors_data = data_dict[self.p+'authorship']
 		if isinstance(authors_data,list):
@@ -302,7 +317,7 @@ class Command(BaseCommand):
 			{'name':"Advisor(s)","value":advisors_str},
 			{'name':'Degree Type', 'value':[degree_type]},
 			{'name':"Date","value":datetime.datetime.today().strftime('%Y-%m-%d')}, 
-			{'name':'Department','value':[dept_name]}
+			{'name':'Thesis Department','value':[dept_name]}
 		]
 		print(figshare_json)
 		return(figshare_json)
@@ -315,16 +330,20 @@ class Command(BaseCommand):
 			'access_token': self.is_token(),
 		}
 		# delete the user 
-		response = requests.delete(fs_base_url+"account/articles/"+str(article_id)+"/authors/"+secrets['figshare_user'],params=params,headers=headers)
+		response = requests.delete(self.fs_base_url+"account/articles/"+str(article_id)+"/authors/"+self.figshare_user,params=params,headers=headers)
+		print(response.__dict__)
 		pqfs.status = 'removed-user'
+		print("removed user, now adding file")
 		pqfs.save()
 		# update embargo info
 		if figshare_json['is_embargoed']:
-			response = requests.put(fs_base_url+"account/articles/"+str(article_id)+"/embargo",params=params,headers=headers,data=json.dumps({'is_embargoed':figshare_json['is_embargoed'],'embargo_date':figshare_json['embargo_date'],'embargo_type':figshare_json['embargo_type']}))
+			response = requests.put(self.fs_base_url+"account/articles/"+str(article_id)+"/embargo",params=params,headers=headers,data=json.dumps({'is_embargoed':figshare_json['is_embargoed'],'embargo_date':figshare_json['embargo_date'],'embargo_type':figshare_json['embargo_type']}))
 			pqfs.status = 'updated-embargo'
 			pqfs.save()
 		# return()
 		# Then we upload the file.
+
+
 		file_info = self.initiate_new_upload(article_id, file_location)
 		# Until here we used the figshare API; following lines use the figshare upload service API.
 		self.upload_parts(file_info,file_location)
@@ -336,6 +355,10 @@ class Command(BaseCommand):
 
 	#LET'S F%(*ING GO
 	def handle(self, *args, **options):
+
+		# we list the zips and then extract the zips to the /working folder.
+		# turn the xml to json.
+		# 
 		zt = pqAttempt.objects.all().values_list('zip_title', flat=True)
 		for z_thesis in self.ziplist:
 			if '.zip' not in z_thesis: # its not a zip.
@@ -346,38 +369,39 @@ class Command(BaseCommand):
 			print('working on '+z_thesis)
 			data_dict = {}
 			# check if there are files first
-			are_there_files = os.listdir(str(BASE_DIR)+'/etds/working')
+			are_there_files = os.listdir(self.working_files_location)
 			if len(are_there_files)>0: # if there are then kill them
 				for f in are_there_files:
-					os.remove(str(BASE_DIR)+'/etds/working/'+f)
+					fp = os.path.join(self.working_files_location, f)
+					try:
+						if os.path.isfile(fp) or os.path.islink(fp):
+							os.remove(fp)
+						elif os.path.isdir(fp):
+							shutil.rmtree(fp)
+					except Exception as e:
+						print('failed to delete ' + fp + '. reason: ' + str(e))
+
 			# loading the temp.zip and creating a zip object
-
 			with ZipFile(str(BASE_DIR)+'/etds/zippies/'+z_thesis, 'r') as z_t:
-
 				# Extracting all the members of the zip
 				# into a specific location.
 				z_t.extractall(
-					path=str(BASE_DIR)+'/etds/working')
-			the_files = os.listdir(str(BASE_DIR)+'/etds/working')
-			a_file = the_files[0].split('.')
-			if a_file[1]=='pdf':
-				# this is pdf use the other file (1)
-				xml_file = str(BASE_DIR)+'/etds/working/'+the_files[1]
-				data_dict= self.xml_to_json(xml_file)
-				upload_file = str(BASE_DIR)+'/etds/working/'+the_files[0]
-			else:
-				xml_file = str(BASE_DIR)+'/etds/working/'+the_files[0]
-				data_dict= self.xml_to_json(xml_file)
-				upload_file = str(BASE_DIR)+'/etds/working/'+the_files[1]
-			# token and push attempt
-			fs_token = self.is_token()
+					path=self.working_files_location
+				)
+			the_files = os.listdir(self.working_files_location)
 
-			headers = {
-						'Content-Type': 'application/json',
-			}
-			params = {
-				'access_token': fs_token,
-			}
+			for f in the_files:
+				if '.xml' in f:
+					xml_file = self.working_files_location+f
+					data_dict= self.xml_to_json(xml_file)
+				elif os.path.isdir(self.working_files_location+f):
+					print("i am a directory" + f)
+					print("skipping for now.")
+					continue
+				else:
+					print("i am a file" + f)
+					#probably the pdf or something. we will upload this to figshare and then delete it. so save the location for now.
+					self.upload_file = self.working_files_location+f
 			# save the original pq json for debugging 
 
 			pqa = pqAttempt()
@@ -386,8 +410,8 @@ class Command(BaseCommand):
 			pqa.pq_id = data_dict[self.p+'description'][self.p+'identifiers']['pubNumber']
 			pqa.pq_json = json.dumps(data_dict,indent=4)
 			pqa.status = 'attempting-convert'
+			pqa.other_files = [f+"\n" for f in the_files if f != os.path.basename(xml_file)]
 			pqa.save()
-			# open('pq_jsons/'+data_dict[self.p+"description"][self.p+'title'].replace("/","").replace(" ","_")+".json" ,'w').write(json.dumps(data_dict,indent=4))
 			pqfs = pqFsAttempt()
 			pqfs.pqa_fk = pqa
 			pqfs.status = 'attempting-convert'
@@ -402,33 +426,34 @@ class Command(BaseCommand):
 			pqa.status = "converted-to-fsjson"
 			pqa.save()
 
-			response = requests.post(fs_base_url+'account/articles', params=params, headers=headers, data=json.dumps(figshare_json)).json()
+			# token and push attempt
+			fs_token = self.is_token()
+			print(fs_token)
+			headers = {
+						'Content-Type': 'application/json',
+			}
+			params = {
+				'access_token': fs_token,
+			}
+			response = requests.post(self.fs_base_url+'account/articles', params=params, headers=headers, data=json.dumps(figshare_json)).json()
 			print(response)
 			
 
 			#cleanup
 			try: # this should be expanded. there are many other places this can fail. hhhhhhhhhhh
-				code = response['code'] #only on error is there a code thrown.
-				if response['code'] in ['UnknownException', 'BadRequest', 'UnprocessableEntity']:
-					print('NO ARTICLE WAS SAVED OMG')
-					print(response['code'])
-					# here we should send an email and debug but continue
-					pqfs.response = str(response)
-					pqfs.status = "failed-at-push"
-					pqfs.save()
-					pass
-				else:
-					article_id = response['entity_id']
-					pqfs.fs_id = article_id
-					pqfs.save()
-					print("cool article went through")
-					self.rm_user_and_add_file(article_id,upload_file,figshare_json,pqfs)
-					os.remove(xml_file)
-					os.remove(upload_file)
-			except KeyError:
 				article_id = response['entity_id']
 				pqfs.fs_id = article_id
 				pqfs.save()
-				self.rm_user_and_add_file(article_id,upload_file,figshare_json,pqfs)
+				print("cool article went through")
+				self.rm_user_and_add_file(article_id,self.upload_file,figshare_json,pqfs)
 				os.remove(xml_file)
-				os.remove(upload_file)
+				os.remove(self.upload_file)
+			except KeyError:
+				print('NO ARTICLE WAS SAVED OMG')
+				print(response['code'])
+				# here we should send an email and debug but continue
+				pqfs.response = str(response)
+				pqfs.status = "failed-at-push"
+				pqfs.note += "Article was not created on figshare. Response code: "+str(response['code'])+". "
+				pqfs.save()
+				pass
