@@ -14,7 +14,7 @@ from requests.exceptions import HTTPError
 import hashlib
 import csv
 import shutil
-# import xml_to_json
+from django.core.mail import send_mail
 
 class Command(BaseCommand):
 
@@ -37,6 +37,7 @@ class Command(BaseCommand):
 		figshare_client_id = secrets["figshare_client_id_dev"]
 		figshare_client_secret = secrets["figshare_client_secret_dev"]
 		figshare_user = secrets["figshare_user_dev"]
+		license = secrets["in_copyright_dev"]
 	else:
 		fs_base_url= "https://api.figshare.com/v2/"
 		in_copyright = 43
@@ -44,8 +45,17 @@ class Command(BaseCommand):
 		figshare_client_id = secrets["figshare_client_id_prod"]
 		figshare_client_secret = secrets["figshare_client_secret_prod"]
 		figshare_user = secrets["figshare_user_prod"]
-	print(figshare_client_id)
-	print("AAAAAAAAAAAAAAA\n\n\n")
+		license = secrets["in_copyright_prod"]
+	
+	# vars from pqkh degree csv
+	degree_map = []
+	with open(str(BASE_DIR)+'/../../pqkh_degree_map.csv') as f:
+		# degree_map = {row[0]:row[1] for row in csv.reader(f, delimiter='\t')}
+		reader = csv.reader(f, delimiter='\t')
+		degree_map = list(reader)
+	#ex:
+	#[...['Tepper', "Master's Thesis", '', 'Master of Business Administration', 'M.A.'], 
+	# ['Tepper', "Master's Thesis", '', 'Master of Innovation Product Development', 'M.I.I.P.S']]
 	department_categories = []
 	department_ids = []
 	with open('etds/subjects/ANZSRC.csv', newline='') as csvfile:
@@ -53,10 +63,6 @@ class Command(BaseCommand):
 		for row in reader:
 			department_categories.append(row[1])  # 0 for the first column of
 			department_ids.append(int(row[0]))  # 0 for the first column of
-	# department_categories = ["Architecture","Art","Biological Sciences","Biomedical Engineering","Center for the Neural Basis of Cognition","Chemical Engineering","Chemistry","Civil and Environmental Engineering","Computer Science","Design","Economics","Electrical and Computer Engineering","Engineering and Public Policy","English","History","Human-Computer Interaction Institute","Information Networking Institute","Information Systems and Management","Institute for Software Research","Language Technologies Institute","Machine Learning","Materials Science and Engineering","Mathematical Sciences","Mechanical Engineering"]
-	department_degree_name = ["Doctor of Philosophy (PhD)", "Master of Architecture (MArch)", "Master of Arts (MA)", "Master of Arts Management (MAM)", "Master of Design (MDes)", "Master of Entertainment Technology (MET)", "Master of Information Systems Management (MISM)", "Master of Product Development (MPD)", "Master of Science (MS)", "Master of Science in Chemical Engineering (MSChE)", "Master of Science in Information Security Policy and Management (MSISPM)", "Master of Science in Information Technology (MSIT)", "Master of Science in Public Policy and Management (MSPPM)", "Master of Science in Sustainable Design (MSSD)", "Master of Urban Planning (MUP)", "Master of Statistical Practice (MSP)", "Master of Fine Arts (MFA)"]
-	degree_type_dev = ["Master's Thesis","Dissertation","Ph.D."]
-
 
 	# func to convert xml to json dict
 	def xml_to_json(self,file):
@@ -64,8 +70,19 @@ class Command(BaseCommand):
 			# make a dict
 			return xmltodict.parse(xml_file.read())[self.p+'submission']
 
-	def handle_failures(self,e):
+	def handle_failures(self,e,msg="no message",title="no title",send_email=False):
 		print("There was an error:", e)
+		print("Error message:", msg)
+		print("Thesis title:", title)
+		if send_email:
+			send_mail(
+					subject='PQ->FS Manual review: '+title,
+					message= msg,
+					from_email='penelopecruz@ok',
+					recipient_list=['kiritharan@cmu.edu'],
+					fail_silently=False,
+				)
+		
 		# Here you could add logging or email notification
 
 	### the following functions are from the example upload on figshare docs https://docs.figshare.com/#example-upload ###
@@ -165,18 +182,8 @@ class Command(BaseCommand):
 		# token_file = open('fs_token.txt','r')
 		try:
 			token = fsToken.objects.get(pk=1)  
-			# token_time = datetime.datetime.fromisoformat(token.created.isoformat())
-			
-			# print(token.created)
-			# 2024-08-20 00:00:00+00:00
-			# dt_naive = datetime.datetime.strptime(str(token.created), "%Y-%m-%d %H:%M:%S%z")
-
-
 			token_time = datetime.datetime.fromisoformat(str(token.created))
-			# print(token_time)
-			# print(timezone.now())
-			# print((timezone.now() - token_time).total_seconds())
-			# exit()
+			
 			if (timezone.now() - token_time).total_seconds() < 3500: #tokens last an hour, so if it's been less than 3500 seconds just use it.
 				return(token.token)
 			else:
@@ -257,40 +264,49 @@ class Command(BaseCommand):
 		#add together...
 		figshare_json['description']=description
 		figshare_json['title']=title
-		figshare_json['license']=44 #"in copyright" ! make sure you change this to 43 in prod
+		figshare_json['license']=self.license 
 		figshare_json['published_date']=published_date
 
-		# check if these custom fileds exist or whatever.
-		if data_dict[self.p+"description"][self.p+'degree'] not in self.degree_type_dev:
-			pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
-			
-			degree_type = ""
-		else:
-			degree_type = data_dict[self.p+"description"][self.p+'degree']
+		for degree in self.degree_map:
+			if degree[4] == data_dict[self.p+"description"][self.p+'degree']:
+				degree_type = degree[1]
+				degree_name = degree[2]
+				if degree_type == "":
+					self.handle_failures(e="Degree TYPE not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+					pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+					pqfs.save()
+				if degree_name == "":
+					self.handle_failures(e="Degree NAME not in options. Manual review needed.",msg="Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+					pqfs.note += "Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+					pqfs.save() 
+				break
+			else:
+				degree_type = ""
+				degree_name = ""
+				self.handle_failures(e="Degree type not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+				pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+				pqfs.save()
+				break
+		
 
 		# department name here.
 		dept_name = data_dict[self.p+"description"][self.p+'institution'][self.p+"inst_contact"]
-		# print(dept_name)
-		if dept_name not in self.department_degree_name:
-			pqfs.note += "department name was not in options: "+dept_name+". "
-			pqfs.save() # alert to this because we should be able to add more department names to fs.
-
 
 		# keywords
 		figshare_json['keywords']+=re.split(r',\s*',data_dict[self.p+"description"][self.p+'categorization'][self.p+'keyword']) if data_dict[self.p+"description"][self.p+'categorization'][self.p+'keyword'] is not None else []
-		#pretty slick, no?
 		
 		#cats
-		first_cat_loop = True
 		cat_desc = data_dict[self.p+"description"][self.p+'categorization'][self.p+'category']
-		categories = []
+		categories = [] 
 
 		if isinstance(cat_desc,list):
 			# [{'DISS_cat_code': '0548', 'DISS_cat_desc': 'Mechanical engineering'}, {'DISS_cat_code': '0794', 'DISS_cat_desc': 'Materials Science'}, {'DISS_cat_code': '0771', 'DISS_cat_desc': 'Robotics'}]
 			for cat in cat_desc:
+				figshare_json['keywords'].append(cat[self.p+'cat_desc'])
 				if cat[self.p+'cat_desc'] in self.department_categories:
-					#figshare sucks and can't add these categories so just shove them in keywords
-					#should they fix it then uncomment the next two
+					#figshare can't add these categories so just shove them in keywords
+					# i forget exactly why but i think the codes don't match up... between pq and kh 
+					# so i'll just keep it empty but this is how you would:
 					# idx = self.department_categories.index(cat[self.p+'cat_desc'])
 					# categories.append(self.department_ids[idx])
 					figshare_json['keywords'].append(cat[self.p+'cat_desc'])
@@ -310,12 +326,13 @@ class Command(BaseCommand):
 			else:
 				figshare_json['keywords'].append(cat_desc[self.p+'cat_desc'])
 
-		figshare_json['categories'] = categories
+		figshare_json['categories'] = categories #this is just empty.
 
 		#custom fields here.
 		figshare_json['custom_fields_list']=[
 			{'name':"Advisor(s)","value":advisors_str},
 			{'name':'Degree Type', 'value':[degree_type]},
+			{'name':'Degree Name', 'value':[degree_name]},
 			{'name':"Date","value":datetime.datetime.today().strftime('%Y-%m-%d')}, 
 			{'name':'Thesis Department','value':[dept_name]}
 		]
@@ -395,9 +412,15 @@ class Command(BaseCommand):
 					xml_file = self.working_files_location+f
 					data_dict= self.xml_to_json(xml_file)
 				elif os.path.isdir(self.working_files_location+f):
-					print("i am a directory" + f)
-					print("skipping for now.")
-					continue
+					files_in_submitted_folder = os.listdir(self.working_files_location+f)
+					if len(files_in_submitted_folder)>1:
+						submitted_folder_message = "zip name: " + z_thesis + ', Directory name: ' + f + '. Directory found in zip file with files inside. Manual review needed. These are the files:'+str(files_in_submitted_folder)	
+						self.handle_failures(e="Directory found in zip file with files inside. Manual review needed.",
+											msg=submitted_folder_message,
+											title=data_dict[self.p+"description"][self.p+'title'],
+											send_email=True
+											)
+					continue # should i break and continue here?
 				else:
 					print("i am a file" + f)
 					#probably the pdf or something. we will upload this to figshare and then delete it. so save the location for now.
@@ -451,9 +474,12 @@ class Command(BaseCommand):
 			except KeyError:
 				print('NO ARTICLE WAS SAVED OMG')
 				print(response['code'])
+				rcode = "Article was not created on figshare. Response code: "+str(response['code'])+". "
 				# here we should send an email and debug but continue
 				pqfs.response = str(response)
 				pqfs.status = "failed-at-push"
-				pqfs.note += "Article was not created on figshare. Response code: "+str(response['code'])+". "
+				pqfs.note += rcode
 				pqfs.save()
+				self.handle_failures(e=str(response['code']),msg=rcode,title=data_dict[self.p+"description"][self.p+'title'],send_email=True)
+				
 				pass
