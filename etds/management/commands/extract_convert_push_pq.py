@@ -206,7 +206,7 @@ class Command(BaseCommand):
 		name = author[self.p+'name'][self.p+'fname']+" "+str('' if author[self.p+'name'][self.p+'middle'] is None else author[self.p+'name'][self.p+'middle'])+ " " +author[self.p+'name'][self.p+'surname']
 		first_name = author[self.p+"name"][self.p+'fname']
 		last_name = author[self.p+"name"][self.p+'surname']
-		if is_author:
+		if is_author and author[self.p+"orcid"] is not None:
 			orcid_id = author[self.p+"orcid"]
 		else:
 			orcid_id = ""
