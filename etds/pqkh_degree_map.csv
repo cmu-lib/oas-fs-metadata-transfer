@@ -1,68 +1,70 @@
-School/College	KH Degree Type	KiltHub	ProQuest	PQ Abbrev
-	Dissertation	Doctor of Philosophy (PhD)	Doctor of Philosophy	Ph.D
-	Master's Thesis	Master of Arts (MA)	Master of Arts	M.A.
-	Master's Thesis	Master of Science (MS)	Master of Science	M.S.
+School/College	KH Degree Type	KiltHub Degree Name	ProQuest Degree Awarded	PQ DISS_degree
+All	Dissertation	Doctor of Philosophy (PhD)	Doctor of Philosophy	Ph.D
+All	Master's Thesis	Master of Arts (MA)	Master of Arts	M.A.
+All	Master's Thesis	Master of Science (MS)	Master of Science	M.S.
 				
-CFA	Dissertation	Doctor of Design (DDes)	Doctor of Design	DDes
-CFA	Dissertation		Doctor of Philosophy in Architecture	Ph.D.Arch
-CFA	Dissertation		Ph.D. in Archtecture--Engineering--Construction Management	PhD-AECM
-CFA	Dissertation		PhD Building Performance and Diagnostics	PhD-BPD
-CFA	Master's Thesis	Master of Architecture (MArch)	Master of Architecture (M. Arch)	M Arch
-CFA	Master's Thesis	Master of Design (MDes)	Master of Design	M.Des.
-CFA	Master's Thesis	Master of Science in Sustainable Design (MSSD)	Master of Science in Sustainable Design	M.S.S.D.
-CFA	Master's Thesis		Master of Urban Design	M.U.D
-CFA	Master's Thesis	Master of Urban Planning (MUP)	Master of Urban Planning	M.U.P.
-CFA	Master's Thesis	Master of Fine Arts (MFA)	Master of Fine Arts	M.F.A.
-CFA	Master's Thesis	Master of Science in Computational Design (MSCD)	Master of Science in Computational Design	M.S.C.D.
-CFA	Master's Thesis	Master of Music	Master of Music	M.M.
-CFA	Master's Thesis	Master of Science in Building Performance and Diagnostics (MSBPD)	Master of Science Building Performance & Diagnostics	MSBPD
-CFA	Master's Thesis		Master of Advanced Architectural Design	MAAD
-CFA	Master's Thesis		Master of Science Architecture-Engineering-Construction Management	MSAECM
-CFA				
-				
-COE	Master's Thesis	Master of Science in Chemical Engineering (MSChE)		
-				
+CFA	Dissertation	Doctor of Philosophy (PhD)	Doctor of Design	DDes
+CFA	Dissertation	Doctor of Philosophy (PhD)	Doctor of Philosophy in Architecture	Ph.D.Arch
+CFA	Dissertation	Doctor of Philosophy (PhD)	Ph.D. in Archtecture--Engineering--Construction Management	PhD-AECM
+CFA	Dissertation	Doctor of Philosophy (PhD)	PhD Building Performance and Diagnostics	PhD-BPD
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Architecture (M. Arch)	M Arch
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Design	M.Des.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Science in Sustainable Design	M.S.S.D.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Urban Design	M.U.D
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Urban Planning	M.U.P.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Fine Arts	M.F.A.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Science in Computational Design	M.S.C.D.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Music	M.M.
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Science Building Performance & Diagnostics	MSBPD
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Advanced Architectural Design	MAAD
+CFA	Master's Thesis	Doctor of Philosophy (PhD)	Master of Science Architecture-Engineering-Construction Management	MSAECM
+		Doctor of Philosophy (PhD)		
+COE	Master's Thesis	Doctor of Philosophy (PhD)		
+		Doctor of Philosophy (PhD)		
 DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Behavioral Decision Research	Ph.D
 DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D. in Behavioral Economics	Ph.D
 DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D. in Behavioral Marketing and Decision Research	Ph.D
 DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Computational Cultural Studies	Ph.D
-DC	Dissertation		Ph.D. in Literary and Cultural Studies	Ph.D. LCS
-DC	Dissertation		Ph.D in Medical Science Training Program	MD-PhD
-DC	Dissertation		Ph.D in Neural Computation	Ph.D. PNC
-DC	Dissertation		Ph.D in Psychology	Ph.D
-DC	Dissertation		Ph.D in Psychology and Behavioral Decision Research	Ph.D
-DC	Dissertation		Ph.D in Rhetoric	Ph.D
-DC	Dissertation		Ph.D in Social and Decision Sciences	Ph.D
-DC	Dissertation		Ph.D in Systems Neuroscience	Ph.D. PSN
-DC	Dissertation		PhD in Applied Linguistics & Second Language Acquisition	Ph.D ALSLA
-DC	Dissertation		PhD in Autonomous and Human Decision Making	Ph.D
-DC	Dissertation		PhD in Cognitive Decision Science	Ph.D
-DC	Dissertation		PhD in Cognitive Neuroscience	Ph.D
-DC	Dissertation		PhD in History	Ph.D
-DC	Dissertation		PhD in Logic, Computation and Methodology	Ph.D. LCM
-DC	Dissertation		PhD in Neural Computation & Machine Learning	Ph.D
-DC	Dissertation		PhD in Neural Computation & Robotics	Ph.D
-DC	Dissertation		PhD in Neural Computation and Statistics	Ph.D
-DC	Dissertation		PhD in Philosophy	Ph.D
-DC	Dissertation		PhD in Pure and Applied Logic	Ph.D. PAL
-DC	Dissertation		PhD in Statistics	Ph.D
-DC	Dissertation		PhD in Statistics / Engineering & Public Policy	Ph.D
-DC	Dissertation		PhD in Statistics / Machine Learning	Ph.D
-DC	Dissertation		PhD in Statistics / Neural Computation	Ph.D
-DC	Dissertation		PhD in Statistics / Public Policy	Ph.D
-DC	Master's Thesis		Master of Arts in Philosophy	M.A.
-DC	Master's Thesis		Master of Science in Logic, Computation, and Methodology	M.S. LCM
-				
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D. in Literary and Cultural Studies	Ph.D. LCS
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Medical Science Training Program	MD-PhD
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Neural Computation	Ph.D. PNC
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Psychology	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Psychology and Behavioral Decision Research	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Rhetoric	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Social and Decision Sciences	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	Ph.D in Systems Neuroscience	Ph.D. PSN
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Applied Linguistics & Second Language Acquisition	Ph.D ALSLA
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Autonomous and Human Decision Making	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Cognitive Decision Science	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Cognitive Neuroscience	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in History	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Logic, Computation and Methodology	Ph.D. LCM
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Neural Computation & Machine Learning	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Neural Computation & Robotics	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Neural Computation and Statistics	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Philosophy	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Pure and Applied Logic	Ph.D. PAL
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Statistics	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Statistics / Engineering & Public Policy	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Statistics / Machine Learning	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Statistics / Neural Computation	Ph.D
+DC	Dissertation	Doctor of Philosophy (PhD)	PhD in Statistics / Public Policy	Ph.D
+DC	Master's Thesis	Master of Arts (MA)	Master of Arts in Philosophy	M.A.
+DC	Master's Thesis	Master of Arts (MA)	Master of Science in Logic, Computation, and Methodology	M.S. LCM
 				
 Heinz	Master's Thesis	Master of Arts Management (MAM)	Master of Arts Management	M.A.M.
 Heinz	Master's Thesis	Master of Information Systems Management (MISM)	Master of Informations Systems Management	MISM
 Heinz	Master's Thesis	Master of Science in Information Security Policy and Management (MSISPM)		
 Heinz	Master's Thesis	Master of Science in Information Technology (MSIT)		
 Heinz	Master's Thesis	Master of Science in Public Policy and Management (MSPPM)		
-Heinz	Master's Thesis		Master of Entertainment Industry Management	MEIM
-Heinz	Master's Thesis		Master of Public Management	M.P.M.
+Heinz	Master's Thesis	Master of Arts (MA)	Master of Entertainment Industry Management	MEIM
+Heinz	Master's Thesis	Master of Arts (MA)	Master of Public Management	M.P.M.
 				
-SCS	Master's Thesis	Master of Language Technologies		
+SCS	Master's Thesis	Master of Language Technologies	Master of Language Technologies	M.L.T
+SCS	Master's Thesis	Master of Arts (MA)	Master of Science in Information Security	M.S.I.S
 				
-Tepper	Master's Thesis		Master of Business Administration	M.A.
-Tepper	Master's Thesis		Master of Innovation Product Development	M.I.I.P.S
+Tepper	Master's Thesis	Master of Arts (MA)	Master of Business Administration	M.B.A.
+Tepper	Master's Thesis	Master of Arts (MA)	Master of Innovation Product Development	M.I.I.P.S
+				
+		Master of Product Development (MPD)		
+		Master of Statistical Practice (MSP) 		

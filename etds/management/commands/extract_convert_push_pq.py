@@ -1,3 +1,5 @@
+from time import sleep
+
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from etds.models import pqAttempt,pqFsAttempt,fsToken
@@ -25,9 +27,11 @@ class Command(BaseCommand):
 	working_files_location =str(BASE_DIR)+"/working/"
 	CHUNK_SIZE = 1048576
 	fs_base_url=""
-	upload_file = ""
+	upload_files = []
 	
 	# secret vars 
+	# this should be using the settings file. like: oafs.settings.fs_base_url 
+
 	with open(str(BASE_DIR)+'/../../../pq_secrets.json') as f:
 		secrets = json.loads(f.read())
 	if secrets['is_dev']:
@@ -53,6 +57,8 @@ class Command(BaseCommand):
 		# degree_map = {row[0]:row[1] for row in csv.reader(f, delimiter='\t')}
 		reader = csv.reader(f, delimiter='\t')
 		degree_map = list(reader)
+	# print(degree_map)
+	# exit()
 	#ex:
 	#[...['Tepper', "Master's Thesis", '', 'Master of Business Administration', 'M.A.'], 
 	# ['Tepper', "Master's Thesis", '', 'Master of Innovation Product Development', 'M.I.I.P.S']]
@@ -83,6 +89,7 @@ class Command(BaseCommand):
 					fail_silently=False,
 				)
 		
+		self.upload_files = []
 		# Here you could add logging or email notification
 
 	### the following functions are from the example upload on figshare docs https://docs.figshare.com/#example-upload ###
@@ -266,29 +273,37 @@ class Command(BaseCommand):
 		figshare_json['title']=title
 		figshare_json['license']=self.license 
 		figshare_json['published_date']=published_date
-
-		for degree in self.degree_map:
-			if degree[4] == data_dict[self.p+"description"][self.p+'degree']:
-				degree_type = degree[1]
-				degree_name = degree[2]
-				if degree_type == "":
-					self.handle_failures(e="Degree TYPE not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
-					pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
-					pqfs.save()
-				if degree_name == "":
-					self.handle_failures(e="Degree NAME not in options. Manual review needed.",msg="Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
-					pqfs.note += "Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
-					pqfs.save() 
-				break
-			else:
-				degree_type = ""
-				degree_name = ""
-				self.handle_failures(e="Degree type not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
-				pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
-				pqfs.save()
-				break
+		print(data_dict[self.p+"description"][self.p+'degree'])
+		degree_name = ""
+		degree_type = ""
+		if data_dict[self.p+"description"][self.p+'degree'] == "Ph.D." or data_dict[self.p+"description"][self.p+'degree'] == "Ph.D":
+			degree_type = "Ph.D."
+			degree_name = "Doctor of Philosophy (PhD)"
+		elif data_dict[self.p+"description"][self.p+'degree'] == "M.A." or data_dict[self.p+"description"][self.p+'degree'] == "M.A":
+			degree_type = "Master's Thesis"
+			degree_name = "Master of Arts (MA)"
+		else:
+			for degree in self.degree_map:
+				print(degree)
+				if degree[4] == data_dict[self.p+"description"][self.p+'degree']:
+					degree_type = degree[1]
+					degree_name = degree[2]
+					if degree_type == "":
+						self.handle_failures(e="Degree TYPE not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+						pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+						pqfs.save()
+					if degree_name == "":
+						self.handle_failures(e="Degree NAME not in options. Manual review needed.",msg="Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+						pqfs.note += "Degree name not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+						pqfs.save() 
+					break
+		# can't find a degree at all.
+		if degree_type == "" or degree_name == "":
+			self.handle_failures(e="Degree type not in options. Manual review needed.",msg="Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". ",title=title,send_email=True)
+			pqfs.note += "Degree type not in options: "+data_dict[self.p+"description"][self.p+'degree']+". "
+			pqfs.save()
+			# break
 		
-
 		# department name here.
 		dept_name = data_dict[self.p+"description"][self.p+'institution'][self.p+"inst_contact"]
 
@@ -336,10 +351,10 @@ class Command(BaseCommand):
 			{'name':"Date","value":datetime.datetime.today().strftime('%Y-%m-%d')}, 
 			{'name':'Thesis Department','value':[dept_name]}
 		]
-		print(figshare_json)
+
 		return(figshare_json)
 
-	def rm_user_and_add_file(self,article_id,file_location,figshare_json,pqfs): # figshare automatically adds myself as a user to articles. 
+	def rm_user_and_add_files(self,article_id,upload_files,figshare_json,pqfs): # figshare automatically adds myself as a user to articles. 
 		headers = {
 			'Content-Type': 'application/json',
 		}
@@ -358,12 +373,19 @@ class Command(BaseCommand):
 			pqfs.status = 'updated-embargo'
 			pqfs.save()
 		# return()
-		# Then we upload the file.
-
-
-		file_info = self.initiate_new_upload(article_id, file_location)
-		# Until here we used the figshare API; following lines use the figshare upload service API.
-		self.upload_parts(file_info,file_location)
+		# Then we upload the file(s).
+		print("owiwowiowiwoeiwoe\n\n\n\n")
+		for file_location in upload_files:
+			print(file_location)
+			if os.path.isdir(file_location):
+				print("ok this is a folder!")
+				continue # skip the supplemental folder itself.
+			if ".xml" in file_location:
+				continue # skip the xml file itself. 
+				
+			file_info = self.initiate_new_upload(article_id, file_location)
+			# Until here we used the figshare API; following lines use the figshare upload service API.
+			self.upload_parts(file_info,file_location)
 		# We return to the figshare API to complete the file upload process.
 		self.issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_info['id']))
 		pqfs.status = 'success'
@@ -378,6 +400,7 @@ class Command(BaseCommand):
 		# 
 		zt = pqAttempt.objects.all().values_list('zip_title', flat=True)
 		for z_thesis in self.ziplist:
+
 			if '.zip' not in z_thesis: # its not a zip.
 				continue
 			if z_thesis in zt:
@@ -405,28 +428,39 @@ class Command(BaseCommand):
 				z_t.extractall(
 					path=self.working_files_location
 				)
-			the_files = os.listdir(self.working_files_location)
 
+			the_files = os.listdir(self.working_files_location)
+			print(the_files)
+			print("these are the files in the zip")
+			supplemental_files = []
 			for f in the_files:
+				print(f)
 				if '.xml' in f:
+					print("we have the fxml clearly")
 					xml_file = self.working_files_location+f
 					data_dict= self.xml_to_json(xml_file)
 				elif os.path.isdir(self.working_files_location+f):
+					self.upload_files.append(self.working_files_location+f) 
+					print("found a directory")
 					files_in_submitted_folder = os.listdir(self.working_files_location+f)
-					if len(files_in_submitted_folder)>1:
-						submitted_folder_message = "zip name: " + z_thesis + ', Directory name: ' + f + '. Directory found in zip file with files inside. Manual review needed. These are the files:'+str(files_in_submitted_folder)	
-						self.handle_failures(e="Directory found in zip file with files inside. Manual review needed.",
-											msg=submitted_folder_message,
-											title=data_dict[self.p+"description"][self.p+'title'],
-											send_email=True
-											)
-					continue # should i break and continue here?
-				else:
-					print("i am a file" + f)
-					#probably the pdf or something. we will upload this to figshare and then delete it. so save the location for now.
-					self.upload_file = self.working_files_location+f
-			# save the original pq json for debugging 
+					
+					for sf in files_in_submitted_folder:
+						print(sf)
+						self.upload_files.append(self.working_files_location+f+"/"+sf)
+						# move these files to the working directory so we can upload them to figshare and then delete them. 
+						# shutil.move(self.working_files_location+f+"/"+sf,self.working_files_location+sf)
+						# add the moved file to the list of files in the zip for record keeping in the pqAttempt model.
+						# the_files.append(self.working_files_location+f+"/"+sf)
 
+				else:
+					#probably the pdf. we will upload this to figshare and then delete it. so save the location for now.
+					self.upload_files.append(self.working_files_location+f)
+			# all these files are now in the working folder. 
+			# save the original pq json for debugging 
+			print(self.upload_files)
+			# exit()
+			print(data_dict)
+			print("here is the dict dick")
 			pqa = pqAttempt()
 			pqa.title = data_dict[self.p+"description"][self.p+'title']
 			pqa.zip_title = z_thesis
@@ -440,6 +474,7 @@ class Command(BaseCommand):
 			pqfs.status = 'attempting-convert'
 			pqfs.save()
 			figshare_json = self.convert_pq_to_fs(data_dict,pqfs)
+			print(figshare_json)
 			# save converted json in case there's an issue downstream
 			
 			pqfs.fs_attempt_json = json.dumps(figshare_json,indent=4)
@@ -468,9 +503,15 @@ class Command(BaseCommand):
 				pqfs.fs_id = article_id
 				pqfs.save()
 				print("cool article went through")
-				self.rm_user_and_add_file(article_id,self.upload_file,figshare_json,pqfs)
+				self.rm_user_and_add_files(article_id,self.upload_files,figshare_json,pqfs)
+				if len(self.upload_files)>1:
+					for sf in supplemental_files: #remove the supplemental files
+						if os.path.isdir(sf):
+							shutil.rmtree(sf)
+						else:
+							os.remove(sf)
 				os.remove(xml_file)
-				os.remove(self.upload_file)
+				self.upload_files = []
 			except KeyError:
 				print('NO ARTICLE WAS SAVED OMG')
 				print(response['code'])
