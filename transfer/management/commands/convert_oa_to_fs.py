@@ -15,7 +15,7 @@ class Command(BaseCommand):
 		try:
 			return dictionary[key]
 		except KeyError:
-			return  ""
+			return  "" #empty string if it doesn't exist. you may wanna handle this differently.
 
 	def add_to_note(self,message,note_addition,is_error):
 		if message.note=="":
@@ -50,6 +50,10 @@ class Command(BaseCommand):
 				# ou = orcidUser()
 				# ou.f_name = fn = self.get_val(this_guy,'firstName')
 				# ou.l_name = ln = self.get_val(this_guy,'lastName')
+				fn = self.get_val(this_guy,'firstName')
+				ln = self.get_val(this_guy,'lastName')
+				ini = self.get_val(this_guy,'initials')
+				orcid = self.get_val(this_guy,'ORCID')
 				ini = self.get_val(this_guy,'initials')
 				orcid = self.get_val(this_guy,'ORCID')
 

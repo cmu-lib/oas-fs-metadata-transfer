@@ -16,8 +16,10 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-with open(str(BASE_DIR)+'/secrets.json') as f:
+# secrets are stored outside of version control and read here.
+with open(str(BASE_DIR)+'/secrets_dev.json') as f:
     secrets = json.loads(f.read())
+# and retreived in this way. you can use env as well if you hate this
 def get_secret(setting, secrets=secrets):
     try:
         return secrets[setting]

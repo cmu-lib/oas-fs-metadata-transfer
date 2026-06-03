@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand, CommandError
-from transfer.models import oaMessage,fsAttempt,repoLicense
+from transfer.models import fsAttempt
 from oafs.settings import secrets, fs_base_url
 import requests
 import json
-import re
 import time
 from datetime import datetime
 
