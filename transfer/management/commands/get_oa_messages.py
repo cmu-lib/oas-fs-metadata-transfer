@@ -74,6 +74,9 @@ class Command(BaseCommand):
             elif article['type'] == "p2":
                 self.stdout.write('it is p2.')
                 continue
+            elif article['header']['meta']['routing']['notification'] == "EMAIL": #these come in as email or webhook.
+                # self.stdout.write('it is an email notification.')
+                continue
             mess = oaMessage()
             mess.message_id = article['id']
             mess.message_json = json.dumps(article)
