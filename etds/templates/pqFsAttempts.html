@@ -62,7 +62,12 @@
 
         <div class="col-2">
             <div class="status-id" id="status-{{item.id}}">
-                stopped at: {{item.status}}
+                {%if item.status == "success" %}
+                    stopped at: {{item.status}}
+                {%else%}
+                    stopped at: <span class="failed" style="color:red;font-weight:bold;">{{item.status}}</span>
+                {%endif%}
+                
                 <!-- <select class="push-input">
                     <option>awaiting input...</option>
                     <option>email reminder</option>

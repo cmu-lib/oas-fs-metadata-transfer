@@ -28,6 +28,7 @@ class Command(BaseCommand):
 	CHUNK_SIZE = 1048576
 	fs_base_url=""
 	upload_files = []
+	token = ""
 	
 	# secret vars 
 	# this should be using the settings file. like: oafs.settings.fs_base_url 
@@ -179,7 +180,7 @@ class Command(BaseCommand):
 		print(json.dumps(fs_token_response))
 		
 		token = fs_token_response['token']
-		# t = fsToken.objects.get(pk=1)
+		t = fsToken.objects.update_or_create(pk=1, defaults={'token': token, 'created': timezone.now()})[0]
 		t.token = token
 		t.created = timezone.now()
 		t.save()
@@ -195,11 +196,11 @@ class Command(BaseCommand):
 				return(token.token)
 			else:
 				print('token expired, getting new one') 
-				return self.get_token(token).token
+				return self.get_token().token
 		except fsToken.DoesNotExist:
 			# Handle the case where the object is not found
 			print("need a new token")
-			return self.get_token(token).token
+			return self.get_token().token
 
 	# used for authors and advisors. 
 	def process_name(self,author,is_author=True):
@@ -277,7 +278,7 @@ class Command(BaseCommand):
 		degree_name = ""
 		degree_type = ""
 		if data_dict[self.p+"description"][self.p+'degree'] == "Ph.D." or data_dict[self.p+"description"][self.p+'degree'] == "Ph.D":
-			degree_type = "Ph.D."
+			degree_type = "Dissertation"
 			degree_name = "Doctor of Philosophy (PhD)"
 		elif data_dict[self.p+"description"][self.p+'degree'] == "M.A." or data_dict[self.p+"description"][self.p+'degree'] == "M.A":
 			degree_type = "Master's Thesis"
@@ -403,7 +404,7 @@ class Command(BaseCommand):
 
 			if '.zip' not in z_thesis: # its not a zip.
 				continue
-			if z_thesis in zt:
+			if z_thesis in zt: # already attempted and successful. skip.
 				print(z_thesis+" has already been attempted. skipping.")
 				continue
 			print('working on '+z_thesis)
@@ -515,12 +516,12 @@ class Command(BaseCommand):
 			except KeyError:
 				print('NO ARTICLE WAS SAVED OMG')
 				print(response['code'])
-				rcode = "Article was not created on figshare. Response code: "+str(response['code'])+". "
+				rcode = "Article was not created on figshare. Response code: "+str(response['code'])+". "+str(response['message'])
 				# here we should send an email and debug but continue
 				pqfs.response = str(response)
 				pqfs.status = "failed-at-push"
 				pqfs.note += rcode
 				pqfs.save()
-				self.handle_failures(e=str(response['code']),msg=rcode,title=data_dict[self.p+"description"][self.p+'title'],send_email=True)
+				self.handle_failures(e=str(response['code'])+" . "+str(response['message']),msg=rcode,title=data_dict[self.p+"description"][self.p+'title'],send_email=True)
 				
 				pass
