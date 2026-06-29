@@ -203,12 +203,30 @@ class Command(BaseCommand):
 			return self.get_token().token
 
 	# used for authors and advisors. 
-	def process_name(self,author,is_author=True):
-		name = author[self.p+'name'][self.p+'fname']+" "+str('' if author[self.p+'name'][self.p+'middle'] is None else author[self.p+'name'][self.p+'middle'])+ " " +author[self.p+'name'][self.p+'surname']
+	def process_name(self,author,is_author=True,fs_author_id=0):
+		name = author[self.p+'name'][self.p+'fname']+" "+str('' if author[self.p+'name'][self.p+'middle'] is None else author[self.p+'name'][self.p+'middle']+ " ") + author[self.p+'name'][self.p+'surname']
 		first_name = author[self.p+"name"][self.p+'fname']
 		last_name = author[self.p+"name"][self.p+'surname']
 		if is_author and author[self.p+"orcid"] is not None:
 			orcid_id = author[self.p+"orcid"]
+			# return{"name": "", "last_name": "", "orcid_id":orcid_id}
+			print("yeah we have orcid")
+			headers = {
+				'Content-Type': 'application/json',
+			}
+			params = {
+				'access_token': self.is_token(),
+			}
+			response = requests.post(self.fs_base_url+'account/authors/search', params=params, headers=headers, data='{"orcid":"'+orcid_id+'"}').json()
+			print(response)
+			if len(response) >0:
+				print('ok response')
+				return {'id': response[0]['id']}
+			# exit()
+			# return {"id":4614126}
+			else:
+				print("this must be a new person")
+				return{"name":name,"first_name":first_name,"last_name":last_name,"orcid_id":orcid_id}		
 		else:
 			orcid_id = ""
 		return{"name":name,"first_name":first_name,"last_name":last_name,"orcid_id":orcid_id}
@@ -375,7 +393,6 @@ class Command(BaseCommand):
 			pqfs.save()
 		# return()
 		# Then we upload the file(s).
-		print("owiwowiowiwoeiwoe\n\n\n\n")
 		for file_location in upload_files:
 			print(file_location)
 			if os.path.isdir(file_location):
@@ -387,8 +404,10 @@ class Command(BaseCommand):
 			file_info = self.initiate_new_upload(article_id, file_location)
 			# Until here we used the figshare API; following lines use the figshare upload service API.
 			self.upload_parts(file_info,file_location)
-		# We return to the figshare API to complete the file upload process.
-		self.issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_info['id']))
+			pqfs.status = 'uploading: ' + file_location
+			pqfs.save()
+			# We return to the figshare API to complete the file upload process.
+			self.issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_info['id']))
 		pqfs.status = 'success'
 		pqfs.save()
 
@@ -513,6 +532,8 @@ class Command(BaseCommand):
 					print(response['code'])
 					rcode = "Article was not created on figshare. Response code: "+str(response['code'])+". "+str(response['message'])
 					# here we should send an email and debug but continue
+					# if "There can't be 2 users having the same orcid" in str(response['message']):
+					# we run it again with just orcid.
 					pqfs.response = str(response)
 					pqfs.status = "failed-at-push"
 					pqfs.note += rcode
