@@ -387,8 +387,10 @@ class Command(BaseCommand):
 			file_info = self.initiate_new_upload(article_id, file_location)
 			# Until here we used the figshare API; following lines use the figshare upload service API.
 			self.upload_parts(file_info,file_location)
-		# We return to the figshare API to complete the file upload process.
-		self.issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_info['id']))
+			pqfs.status = 'uploading: ' + file_location
+			pqfs.save()
+			# We return to the figshare API to complete the file upload process.
+			self.issue_request('POST', 'account/articles/{}/files/{}'.format(article_id, file_info['id']))
 		pqfs.status = 'success'
 		pqfs.save()
 
