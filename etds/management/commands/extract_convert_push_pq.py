@@ -85,7 +85,7 @@ class Command(BaseCommand):
 			send_mail(
 					subject='PQ->FS Manual review: '+title,
 					message= msg,
-					from_email='penelopecruz@ok',
+					from_email='etdsreport@oatools.library.cmu.edu',
 					recipient_list=['kiritharan@cmu.edu'],
 					fail_silently=False,
 				)
