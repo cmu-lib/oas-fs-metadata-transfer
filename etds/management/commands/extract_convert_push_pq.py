@@ -203,12 +203,30 @@ class Command(BaseCommand):
 			return self.get_token().token
 
 	# used for authors and advisors. 
-	def process_name(self,author,is_author=True):
-		name = author[self.p+'name'][self.p+'fname']+" "+str('' if author[self.p+'name'][self.p+'middle'] is None else author[self.p+'name'][self.p+'middle'])+ " " +author[self.p+'name'][self.p+'surname']
+	def process_name(self,author,is_author=True,fs_author_id=0):
+		name = author[self.p+'name'][self.p+'fname']+" "+str('' if author[self.p+'name'][self.p+'middle'] is None else author[self.p+'name'][self.p+'middle']+ " ") + author[self.p+'name'][self.p+'surname']
 		first_name = author[self.p+"name"][self.p+'fname']
 		last_name = author[self.p+"name"][self.p+'surname']
 		if is_author and author[self.p+"orcid"] is not None:
 			orcid_id = author[self.p+"orcid"]
+			# return{"name": "", "last_name": "", "orcid_id":orcid_id}
+			print("yeah we have orcid")
+			headers = {
+				'Content-Type': 'application/json',
+			}
+			params = {
+				'access_token': self.is_token(),
+			}
+			response = requests.post(self.fs_base_url+'account/authors/search', params=params, headers=headers, data='{"orcid":"'+orcid_id+'"}').json()
+			print(response)
+			if len(response) >0:
+				print('ok response')
+				return {'id': response[0]['id']}
+			# exit()
+			# return {"id":4614126}
+			else:
+				print("this must be a new person")
+				return{"name":name,"first_name":first_name,"last_name":last_name,"orcid_id":orcid_id}		
 		else:
 			orcid_id = ""
 		return{"name":name,"first_name":first_name,"last_name":last_name,"orcid_id":orcid_id}
