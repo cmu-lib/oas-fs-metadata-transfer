@@ -86,7 +86,7 @@ class Command(BaseCommand):
 					subject='PQ->FS Manual review: '+title,
 					message= msg,
 					from_email='etdsreport@oatools.library.cmu.edu',
-					recipient_list=['kiritharan@cmu.edu'],
+					recipient_list=['kiritharan@cmu.edu',"ebongiov@andrew.cmu.edu", "kbehrman@andrew.cmu.edu"],
 					fail_silently=False,
 				)
 		
