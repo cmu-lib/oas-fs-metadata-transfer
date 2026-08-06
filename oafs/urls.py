@@ -21,10 +21,7 @@ from transfer.views import oafsIndex, fsAttempts, showMessages, showLicenses, al
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', oafsIndex, name='oafsIndex'),
-    path('fsAttempts', fsAttempts, name='fsAttempts'),
-    path('oaMessages', showMessages, name='showMessages'),
-    path('fsLicenses', showLicenses, name='showLicenses'),
-    path('allErrors', allErrors, name='allErrors'),
+    path('oafs/', include('transfer.urls')),
     path('etds/', include('etds.urls')),
-    path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
+    # path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

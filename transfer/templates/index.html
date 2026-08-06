@@ -2,10 +2,10 @@
 
 {% block content %}
 <ul>
-    <li><a href="/oaMessages">OA Switchboard Messages</a></li>
-    <li><a href="/fsAttempts">Figshare Input Attempts</a></li>
+    <li><a href="{% url 'showMessages' %}">OA Switchboard Messages</a></li>
+    <li><a href="{% url 'fsAttempts' %}">Figshare Input Attempts</a></li>
     <!-- <li><a href="/fsPushResults">Figshare Push Results</a></li> -->
-    <li><a href="/fsLicenses">Currently Available Figshare Licenses</a></li>
-    <li><a href="/allErrors">All Failed Articles</a></li>
+    <li><a href="{% url 'showLicenses' %}">Currently Available Figshare Licenses</a></li>
+    <li><a href="{% url 'allErrors' %}">All Failed Articles</a></li>
 </ul>
 {%endblock%}

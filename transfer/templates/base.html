@@ -18,10 +18,8 @@
      
 </head>
 
-<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'
-    >
-
-
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <a href="/">Home</a>
         {% block content %}
         {% endblock %}
 <script type="text/javascript" src="{% static 'js/htmx.js' %}"></script>
