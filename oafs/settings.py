@@ -10,17 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import json
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-is_dev = False
-if is_dev:
-    secrets_file = str(BASE_DIR)+'/secrets_dev.json'
-else:
-    secrets_file = str(BASE_DIR)+'/secrets.json'
+DEBUG = True
+secrets_file = str(BASE_DIR)+'/secrets.json'
 with open(secrets_file) as f:
     secrets = json.loads(f.read())
 def get_secret(setting, secrets=secrets):
@@ -30,22 +25,10 @@ def get_secret(setting, secrets=secrets):
         error_msg = 'set the {0} env variable '.format(setting)
         raise ImproperlyConfigured(error_msg)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secret('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu']
-fs_base_url = get_secret('fs_base_url')
-#in the production instance the license # for incopyright is 43. on the dev it is 44.
-in_copyright_num = get_secret('in_copyright_num')
-how_many_oa_messages = '50'
-
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu'] # add your url here.
 
 # Application definition
 

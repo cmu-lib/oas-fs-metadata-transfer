@@ -4,12 +4,20 @@ from django import forms
 
 # so you can modify this in the admin  
 class serviceCredentials(models.Model):
-    token = models.CharField(max_length=1024, help_text='token for whatever',null=True)
-    attempted = models.DateTimeField(auto_now_add=True, blank=True)
+    token = models.CharField(max_length=1024, help_text='token for whatever',null=True, blank=True)
+    token_created = models.DateTimeField(auto_now_add=True, blank=True)
     name = models.CharField(max_length=1024, help_text='name for the service',null=False)
     client_id = models.CharField(max_length=1024, help_text='client id for whatever',null=False)
     client_secret = models.CharField(max_length=1024, help_text='client secret for whatever',null=False)
-    url = models.CharField(max_length=1024, help_text='url pointed at for the api calls. ie https://api.figshare.com/v2',null=True)
+    is_dev = models.BooleanField(help_text='is this a dev token?',default=False)
+    url = models.CharField(max_length=1024, help_text='url pointed at for the api calls. ie https://api.figshare.com/v2/ (make sure to include final "/")',null=True)
+    def __str__(self):
+        return self.name + " (Dev)" if self.is_dev else self.name + " (Prod)"
+
+class useDevSettings(models.Model):
+    use_dev = models.BooleanField(help_text='use dev settings?',default=False)
+    def __str__(self):
+        return "Using Dev Settings" if self.use_dev else "Using Production Settings"
 
 class oaMessage(models.Model):  
     oa_id = models.IntegerField(help_text="id of the messages",default=0)
