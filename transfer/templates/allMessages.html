@@ -30,18 +30,18 @@
     {% for item in messages  %}
         <div class="row">
         <div class="col-1">
-            <div class="message-id" id="message-{{item.message_id}}">{{item.message_id}}</div> 
+            <div class="message-id" id="message-{{item.oa_id}}">{{item.oa_id}}</div> 
         </div>
-            <div class="col-7">{{item.message_title}}</div> 
+            <div class="col-7">{{item.title}}</div> 
             <div class="col-2">saved on: {{item.attempted}}</div>
-        {%if item.status == 'ready'%}
+        {%if item.status.status == 'ready'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:green;"><a href="/fsAttempts#oa-{{item.id}}">{{item.status}}</a></div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;"><a href="/fsAttempts#oa-{{item.id}}">{{item.status}}</a></div>
         </div>
         {%endif%}
-        {%if item.status == 'error'%}
+        {%if item.status.status == 'error'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:red;">{{item.status.status}}</div>
             <!-- <div id="retryOAConversion"
                   hx-confirm="do you wanna try this one again?"
                   hx-target="#wedidit"
@@ -53,19 +53,19 @@
             </div> -->
         </div>
         {%endif%}
-        {%if item.status == 'duplicate'%}
+        {%if item.status.status == 'duplicate'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:orange;">{{item.status.status}}</div>
         </div>
         {%endif%}
-        {%if item.status == 'done' or item.status == 'failed during push'%}
+        {%if item.status.status == 'done' or item.status.status == 'failed during push'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:green;">{{item.status}}</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">{{item.status.status}}</div>
         </div>
         {%endif%}
 
-        <div class="message-json col-12" id="json-{{item.message_id}}">{{item.message_json}}</div>
-        <div class="message-note col-12" id="note-{{item.message_id}}">{{item.note}}</div>
+        <div class="message-json col-12" id="json-{{item.oa_id}}">{{item.json}}</div>
+        <div class="message-note col-12" id="note-{{item.oa_id}}">{{item.status.note}}</div>
     </div> 
     <!-- endrow -->
     {% endfor %}

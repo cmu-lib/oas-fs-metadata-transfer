@@ -1,67 +1,35 @@
-from django.core.management.base import BaseCommand, CommandError
-from transfer.models import oaMessage
-from oafs.settings import secrets,how_many_oa_messages
-import requests
-import json
-# import tempfile.NamedTemporaryFile as ntf
+import requests, json
+from django.core.management.base import BaseCommand
+from transfer.models import oaMessage, messageStatus
+from transfer.utils import get_token, get_val
+from transfer import settings
 
-#messages from OA SWITCHBOARD
-#################
-# oa_token first#
-#################
-
+#receive messages from OA SWITCHBOARD
 
 
 class Command(BaseCommand):
-    token = ""
+    access = get_token('oaswitchboard')
     startrow = 1
     total_messages = 0
     messages = []
-
-    def getval(self,dictionary,key): #stupid function for keyerror try catch.
-        try:
-            return dictionary[key]
-        except KeyError:
-            return  '!!missing!!'
-
-    def get_token(self):
-        headers = {
-        'Content-Type': 'application/json',
-        }
-
-        json_data = {
-            'email': secrets['oa_switchboard_email'],\
-            'password': secrets['oa_switchboard_pw'],
-        }
-
-        oa_token_response = requests.post('https://api.oaswitchboard.org/v2/authorize', headers=headers, json=json_data).json()
-        self.stdout.write(json.dumps(oa_token_response))
-        self.token = oa_token_response['token']
-        # self.token = 'eyJraWQiOiJ4RFdkTGJMWXZNb2hNSVhXTkF5bkwrenU3RzJ0dUY5RmFSMlplbVRNOTdRPSIsImFsZyI6IlJTMjU2In0.eyJjdXN0b206dHlwZSI6Imluc3RpdHV0aW9uIiwiY3VzdG9tOnJvciI6IjAwMDAwMDAiLCJzdWIiOiJlZDAyNjNiNi0zMzdjLTRkYWItOWIzNS0zZTQxYzc1NmEyYTgiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiY3VzdG9tOndlYmhvb2siOiJmYWxzZSIsImlzcyI6Imh0dHBzOlwvXC9jb2duaXRvLWlkcC5ldS1jZW50cmFsLTEuYW1hem9uYXdzLmNvbVwvZXUtY2VudHJhbC0xX3A2WUlIUEpBTyIsImNvZ25pdG86dXNlcm5hbWUiOiJjbXVsaWJhcUBhbmRyZXcuY211LmVkdSIsImN1c3RvbTpwdWJzd2VldF9pZCI6IjAwMDAwMDAiLCJhdWQiOiI1ZmV0ajc1NWozNDdpYzA4OGlkMmIzc2hqciIsImN1c3RvbTppbnN0aXR1dGlvbiI6IkNhcm5lZ2llIE1lbGxvbiBVbml2ZXJzaXR5IiwiZXZlbnRfaWQiOiJlZjNiNzJiMC1lMmFjLTRjYzQtYmFlMS1kYWVmM2E0ZWQ2ZDEiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTc0NjQ3ODIwNCwibmFtZSI6IkNhcm5lZ2llIE1lbGxvbiBVbml2ZXJzaXR5IiwiY3VzdG9tOnBlcnNpc3RlbnQiOiIxIiwiZXhwIjoxNzQ2NDgxODA0LCJpYXQiOjE3NDY0NzgyMDQsImVtYWlsIjoiY211bGliYXFAYW5kcmV3LmNtdS5lZHUifQ.CpOPSotRpVoT94OhxWHSK5-6di9f0wAYJo5mruKTxIfM-s_B3jaOtCi1wh-ZDjt12S_h4VLcfU1z0hWu0035oGBRzQlmFtC5oOLEO0sCG0imXyQjEhQRKM3kMy7bIYdeYrSPFmSMPZZYzjxeQ4rSHRrkcq3o6ZAYoM2mZ7QXs8vUQzx8LpuhZ1j6Vm0EwvyXXsD30EELlkOC47Aach-ID1hNCaErr--VFu3TAwsPqKvIOfQ3RdoL3WNsLqeU0cqeKhX_AuIvNFeTRmHDwWNtJwn5xpEUDFXM7YxRHq6AcSn7-oJE_AMtr1HntDsXHv2aRKxQmm6swveT6lW9DK3diw'
-
+        
     def get_message_batch(self):
         headers = {
-            'Authorization': 'Bearer ' + self.token
+            'Authorization': 'Bearer ' + self.access.token
         }
 
         params = {
             'startrow': str(self.startrow),
-            'maxrows': how_many_oa_messages,
+            'maxrows': settings.how_many_oa_messages,
             'filter': 'all',
             'orderby': 'created',
             'orderdir': 'desc',
         }
 
-        oa_messages = requests.get('https://api.oaswitchboard.org/v2/messages', params=params, headers=headers).json()
-        print(params)
-        print("why cant you show me this thing")
-        self.stdout.write(json.dumps(oa_messages))
-        # if self.getval(oa_messages,'message') is True: #there was a message
-        #     self.stdout.write("boooo something broke")
-        #     self.stdout.write(getval(oa_messages,'message'))#write the error
-        #     exit()
-        # else:
+        oa_messages = requests.get(self.access.url+'messages', params=params, headers=headers).json()
+        
         # self.stdout.write(json.dumps(oa_messages))
+        
         self.total_messages = int(oa_messages['total'])
         return(oa_messages)
             
@@ -70,8 +38,8 @@ class Command(BaseCommand):
         last_mess = 0
         already_here_count = 0
         for i, article in enumerate(messages['messages']):
-            # put in a check to see if this particular message exists already
-            if oaMessage.objects.filter(message_id=article['id']):#this article exists already
+            # put in a check to see if this particular message has been processed already
+            if oaMessage.objects.filter(oa_id=article['id']):#this article exists already
                 self.stdout.write('it\'s here already')
                 already_here_count+=1
                 if already_here_count>5:
@@ -81,51 +49,67 @@ class Command(BaseCommand):
             elif article['type'] == "p2":
                 self.stdout.write('it is p2.')
                 continue
+            if article['header']['meta']['routing']['notification'] != "WEBHOOK":
+                # this comes in as a webhook or a EMAIL so we don't want to duplicate.
+                continue
+            mess_status = messageStatus()
+            mess_status.status = "begin"
+            mess_status.note = "beginning to process message."
+            mess_status.save()
             mess = oaMessage()
-            mess.message_id = article['id']
-            mess.message_json = json.dumps(article)
+            mess.oa_id = article['id']
+            mess.json = json.dumps(article)
+            mess.status=mess_status
             mess.save()
-            if article['header']['to']['address'] != 'https://ror.org/05x2bcf33':
+            
+            # articles must be sent to the correct ROR id.
+            if article['header']['to']['address'] != settings.institution_ror:
                 print(" not for us.")
-                mess.status="this article was meant for: "+ article['header']['to']['address']
+                mess_status.note = " not for us. meant for: "+ article['header']['to']['address']
+                mess_status.status = "not-for-us"
+                mess_status.save()
                 mess.save()
                 continue
-            # print(type(article))
-            # print(json.dumps(article))
             
-            if self.getval(article,'data') != '!!missing!!':
-                if self.getval(article['data'],'article') != '!!missing!!':
-                    if self.getval(article['data']['article'],'title') != '!!missing!!':
-                        mess.message_title = self.getval(article['data']['article'],'title')
+            if get_val(article,'data') != '!!missing!!':
+                if get_val(article['data'],'article') != '!!missing!!':
+                    if get_val(article['data']['article'],'title') != '!!missing!!':
+                        mess.title = get_val(article['data']['article'],'title')
                     else:
-                        mess.message_title='title field is missing'
-                        mess.note='title field is missing'
-                        mess.status = 'error'
+                        mess.title='title field is missing'
+                        mess_status.note='title field is missing'
+                        mess_status.status = 'error'
                 else:
-                    mess.message_title = 'article field is missing.'
-                    mess.note = 'article field is missing.'
-                    mess.status = "error"
+                    mess.title = 'article field is missing.'
+                    mess_status.note = 'article field is missing.'
+                    mess_status.status = "error"
             else:
-                mess.message_title = 'data field is missing.'
-                mess.note = 'data field is missing.'
-                mess.status = "error"
-            # self.stdout.write(self.getval(self.getval(self.getval(article,'data'),'article'),'title'))
+                mess.title = 'data field is missing.'
+                mess_status.note = 'data field is missing.'
+                mess_status.status = "error"
+            # self.stdout.write(self.get_val(self.get_val(self.get_val(article,'data'),'article'),'title'))
 
-            # mess.message_title = self.getval(self.getval(self.getval(article,'data'),'article'),'title')
-            self.stdout.write(mess.message_title)
+            # mess.title = self.get_val(self.get_val(self.get_val(article,'data'),'article'),'title')
+            self.stdout.write(mess.title)
 
             # oftentimes there are two articles coming in that are identical except for a small change
             # one after another 
-            if last_mess!=0 and mess.message_title == last_mess.message_title:
+            if last_mess!=0 and mess.title == last_mess.title:
                 print('same titles!!!!')
-                self.stdout.write(mess.message_title)
-                if article['created']>json.loads(last_mess.message_json)['created']:
-                    last_mess.status="duplicate"
-                    last_mess.save()
+                self.stdout.write(mess.title)
+                if article['created']>json.loads(last_mess.json)['created']:
+                    last_mess.status.status="duplicate"
+                    last_mess.status.save()
                 else:
                     mess.status="duplicate"
-            
+                    mess_status.status = "duplicate"
+                    mess_status.save()
             mess.save()
+            if mess_status.status == "begin":
+                mess_status.status = "oa-complete"
+            if mess_status.note == "beginning to process message.":
+                mess_status.note = "ok from oaSwitchboard."
+            mess_status.save()
             last_mess = mess
             
 
@@ -135,14 +119,11 @@ class Command(BaseCommand):
         # parser.add_argument("poll_ids", nargs="+", type=int)
         parser.add_argument(
             "--all",
-            action="store_true",#idk what this does :)
+            action="store_true", #idk what this does :)
             help="go back and get all messages with multiple queries.",
         )
 
     def handle(self, *args, **options):
-
-        if self.token == "":
-            self.get_token()
             
         if options["all"]:
             # get first batch of messages where total is also saved
