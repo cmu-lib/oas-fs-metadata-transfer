@@ -1,6 +1,28 @@
 from django.utils import timezone
 import datetime, requests
-from transfer.models import useDevSettings, serviceCredentials
+from transfer.models import useDevSettings, serviceCredentials, messageStatus
+
+def organize_statuses(all_messages):
+    for mess in all_messages:
+        mess.statuses = messageStatus.objects.filter(oa=mess)
+
+        if(len(mess.statuses)>1):
+            mess.overall_status = "multiple errors/statuses"
+        else:
+            for i in mess.statuses:
+                print(i.status)
+                if i.status == "error":
+                    mess.overall_status = "error"
+                    break
+                elif i.status == "duplicate":
+                    mess.overall_status = "duplicate"
+                elif i.status == "begin":
+                    mess.overall_status = "begin"
+                elif i.status == "oa-ready":
+                    mess.overall_status = "oa-ready"
+                else:
+                    mess.overall_status = "unknown"
+    return all_messages
 
 def get_val(dictionary,key): #simple function for keyerror try catch.
         try:

@@ -24,7 +24,7 @@ class oaMessage(models.Model):
     title = models.CharField(max_length=1024, help_text='title of the article',null=True)
     attempted = models.DateTimeField(auto_now_add=True, blank=True)
     json = models.TextField(help_text="the json received",default=None,null=True)
-    status = models.ForeignKey("messageStatus", null=True, on_delete=models.CASCADE ,help_text='FK for oa') 
+    
     def __str__(self):
         return self.title
 
@@ -44,7 +44,7 @@ class fsAttempt(models.Model):
     link = models.CharField(max_length=1024, help_text="link created for reference on fs",null=True)
     attempted= models.DateTimeField(auto_now_add=True, blank=True)
     json = models.TextField(help_text="the json attempt",null=True)
-    status = models.ForeignKey('messageStatus', null=True, on_delete=models.CASCADE ,help_text='FK for fs')
+    
     def __str__(self):
             return self.oam_fk.title + " fs_id: " + str(self.fs_id)
 
@@ -53,6 +53,8 @@ class messageStatus(models.Model):
     note = models.TextField(help_text="what went wrong. what went right.",default="",null=True)
     type = models.CharField(max_length=256, help_text="type of error.",default="",null=True)
     status = models.CharField(max_length=256, help_text="type of error.",default="",null=True) # during the oa intake, during the conversion, during the push to figshare, etc.
+    fs = models.ForeignKey('fsAttempt', null=True, on_delete=models.CASCADE ,help_text='FK for fs', related_name='status')
+    oa = models.ForeignKey('oaMessage', null=True, on_delete=models.CASCADE ,help_text='FK for oa', related_name='status')
     
     # user_fk = models.ForeignKey('orcidUser', null=True, on_delete=models.CASCADE ,help_text='FK for users') #oaMessageAttempt
     

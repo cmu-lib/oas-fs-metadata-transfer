@@ -42,7 +42,7 @@ class Command(BaseCommand):
             if oaMessage.objects.filter(oa_id=article['id']):#this article exists already
                 self.stdout.write('it\'s here already')
                 already_here_count+=1
-                if already_here_count>5:
+                if already_here_count>10: #if ten in a row are already saved. then we can probalby stop checking.
                     print('we got enough')
                     exit()
                 continue
@@ -52,21 +52,23 @@ class Command(BaseCommand):
             if article['header']['meta']['routing']['notification'] != "WEBHOOK":
                 # this comes in as a webhook or a EMAIL so we don't want to duplicate.
                 continue
-            mess_status = messageStatus()
-            mess_status.status = "begin"
-            mess_status.note = "beginning to process message."
-            mess_status.save()
+            # make the objs
             mess = oaMessage()
             mess.oa_id = article['id']
             mess.json = json.dumps(article)
-            mess.status=mess_status
             mess.save()
+            mess_status = messageStatus()
+            mess_status.status = "begin"
+            mess_status.note = "beginning to process oa message."
+            mess_status.oa = mess
+            mess_status.save()
+            
             
             # articles must be sent to the correct ROR id.
             if article['header']['to']['address'] != settings.institution_ror:
                 print(" not for us.")
                 mess_status.note = " not for us. meant for: "+ article['header']['to']['address']
-                mess_status.status = "not-for-us"
+                mess_status.status = "error"
                 mess_status.save()
                 mess.save()
                 continue
@@ -83,14 +85,15 @@ class Command(BaseCommand):
                     mess.title = 'article field is missing.'
                     mess_status.note = 'article field is missing.'
                     mess_status.status = "error"
+                    mess_status.save()
+                    mess.save()
             else:
                 mess.title = 'data field is missing.'
                 mess_status.note = 'data field is missing.'
                 mess_status.status = "error"
-            # self.stdout.write(self.get_val(self.get_val(self.get_val(article,'data'),'article'),'title'))
-
-            # mess.title = self.get_val(self.get_val(self.get_val(article,'data'),'article'),'title')
-            self.stdout.write(mess.title)
+                mess.save()
+                mess_status.save()
+                continue
 
             # oftentimes there are two articles coming in that are identical except for a small change
             # one after another 
@@ -98,15 +101,16 @@ class Command(BaseCommand):
                 print('same titles!!!!')
                 self.stdout.write(mess.title)
                 if article['created']>json.loads(last_mess.json)['created']:
-                    last_mess.status.status="duplicate"
-                    last_mess.status.save()
+                    messageStatus.objects.filter(oa=last_mess).update(status="duplicate")
+                    
                 else:
-                    mess.status="duplicate"
+                    # mess.status="duplicate"
                     mess_status.status = "duplicate"
                     mess_status.save()
+                    
             mess.save()
             if mess_status.status == "begin":
-                mess_status.status = "oa-complete"
+                mess_status.status = "oa-ready"
             if mess_status.note == "beginning to process message.":
                 mess_status.note = "ok from oaSwitchboard."
             mess_status.save()

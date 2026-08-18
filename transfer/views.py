@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from .models import oaMessage,repoLicense,fsAttempt
+from .models import oaMessage,repoLicense,fsAttempt, messageStatus
+from .utils import organize_statuses
 from django.db.models import Q,F,Value
 from django.http import HttpResponse
 from django.template import loader
@@ -10,11 +11,13 @@ def oafsIndex(request): # homepage :)
 	return render(request, 'index.html')
 
 def fsAttempts(request): # page to show messages after the attempt to figshare
-	fs_attempts = fsAttempt.objects.all().order_by('-id')
-	return render(request,'fsAttempts.html',{'attempts':fs_attempts})
+	all_messages = organize_statuses(fsAttempt.objects.all().order_by('-id'))
+	return render(request,'fsAttempts.html',{'attempts':all_messages})
 
 def showMessages(request): # page to show messages from oaswitchboard after conversion
-	all_messages = oaMessage.objects.all().order_by('-id').select_related('status')
+	# this is a dumb # of queries.
+	all_messages = organize_statuses(oaMessage.objects.all().order_by('-id'))
+
 	return render(request, "allMessages.html",{'messages':all_messages})
 
 def showLicenses(request): # page to show licenses from figshare.
