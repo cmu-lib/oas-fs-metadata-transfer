@@ -2,20 +2,7 @@
 
 {% block content %}
 
-<style>
-    .message-note,.message-json{display: none;}
-    .message-id{color:blue;text-decoration: underline;}
-    .message-id:hover{cursor: pointer;}
-    .status-id{text-decoration: underline;}
-    .status-id:hover{cursor: pointer;}
-    #helptext{
-        margin-left:15px;
-        width:45%;
-    }
-    #pagetitle{
-        margin-left: 15px;
-    }
-</style>
+
 
 <h3 id="pagetitle">All OA Messages</h3>
 <div class="container-fluid">
@@ -23,7 +10,7 @@
     <div id="helptext">
         <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message.</p>
         <p>The link on the right, if <span style="color:red;">red/error</span> then clicking it will show the error.</p>
-        <p>If <span style="color:blue;">blue/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
+        <p>If <span style="color:green;">green/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
         <p>If it is <span style="color:orange;">orange/duplicate/multiple</span> then the link won't do anything but just letting you be aware.</p>
     </div>
 </div>
@@ -37,7 +24,7 @@
             <div class="col-2">saved on: {{item.attempted}}</div>
         {%if item.overall_status == 'oa-ready'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;"><a href="/fsAttempts#oa-{{item.id}}">ready</a></div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">ready</div>
         </div>
         {%endif%}
         {%if item.overall_status == 'error'%}
