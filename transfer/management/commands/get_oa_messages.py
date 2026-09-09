@@ -1,7 +1,7 @@
 import requests, json
 from django.core.management.base import BaseCommand
 from transfer.models import oaMessage, messageStatus
-from transfer.utils import get_token, get_val
+from transfer.utils import get_token, get_val, handle_mess
 from transfer import settings
 
 #receive messages from OA SWITCHBOARD
@@ -57,20 +57,14 @@ class Command(BaseCommand):
             mess.oa_id = article['id']
             mess.json = json.dumps(article)
             mess.save()
-            mess_status = messageStatus()
-            mess_status.status = "begin"
-            mess_status.note = "beginning to process oa message."
-            mess_status.oa = mess
-            mess_status.save()
+            mess_status = handle_mess("begin", "beginning to process oa message.", mess, "oa")
             
             
             # articles must be sent to the correct ROR id.
             if article['header']['to']['address'] != settings.institution_ror:
                 print(" not for us.")
-                mess_status.note = " not for us. meant for: "+ article['header']['to']['address']
-                mess_status.status = "error"
-                mess_status.save()
-                mess.save()
+                handle_mess("error", "not for us. meant for: "+ article['header']['to']['address'], mess, "oa")
+                # mess.save()
                 continue
             
             if get_val(article,'data') != '!!missing!!':
@@ -79,34 +73,30 @@ class Command(BaseCommand):
                         mess.title = get_val(article['data']['article'],'title')
                     else:
                         mess.title='title field is missing'
-                        mess_status.note='title field is missing'
-                        mess_status.status = 'error'
+                        handle_mess("error", "title field is missing", mess, "oa")
+                        mess.save()
                 else:
                     mess.title = 'article field is missing.'
-                    mess_status.note = 'article field is missing.'
-                    mess_status.status = "error"
-                    mess_status.save()
+                    handle_mess("error", "article field is missing.", mess, "oa")
                     mess.save()
             else:
                 mess.title = 'data field is missing.'
-                mess_status.note = 'data field is missing.'
-                mess_status.status = "error"
+                handle_mess("error", "data field is missing.", mess, "oa")
                 mess.save()
-                mess_status.save()
                 continue
 
             # oftentimes there are two articles coming in that are identical except for a small change
             # one after another 
-            if last_mess!=0 and mess.title == last_mess.title:
-                print('same titles!!!!')
-                self.stdout.write(mess.title)
-                if article['created']>json.loads(last_mess.json)['created']:
-                    messageStatus.objects.filter(oa=last_mess).update(status="duplicate")
+            # if last_mess!=0 and mess.title == last_mess.title:
+            #     print('same titles!!!!')
+            #     self.stdout.write(mess.title)
+            #     if article['created']>json.loads(last_mess.json)['created']:
+            #         messageStatus.objects.filter(oa=last_mess).update(status="duplicate")
                     
-                else:
-                    # mess.status="duplicate"
-                    mess_status.status = "duplicate"
-                    mess_status.save()
+            #     else:
+            #         # mess.status="duplicate"
+            #         mess_status.status = "duplicate"
+            #         mess_status.save()
                     
             mess.save()
             if mess_status.status == "begin":

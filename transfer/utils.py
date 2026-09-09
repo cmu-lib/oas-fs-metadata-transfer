@@ -1,6 +1,25 @@
 from django.utils import timezone
+from django.db.models import Q
 import datetime, requests
 from transfer.models import useDevSettings, serviceCredentials, messageStatus
+
+
+def handle_mess(status, note, mess, mess_type):
+    if status!="error":#if it's an error then we create another entry for the same message. we want to capture all errors in order to report
+        #and have complete data.
+        if mess_type == "oa":
+            mess_status = messageStatus(oa=mess)
+        elif mess_type == "fs":
+            mess_status = messageStatus(fs=mess)
+    else:# otherwise we can just update the existing thing.
+        if mess_type == "oa":
+            mess_status = messageStatus.objects.filter(oa=mess) & ~Q(status="error").first() # we want to update the first status, not create a new one.
+        elif mess_type == "fs":
+            mess_status = messageStatus.objects.filter(fs=mess) & ~Q(status="error").first() # we want to update the first status, not create a new one.
+    mess_status.note = note
+    mess_status.status = status
+    mess_status.save()
+    return mess
 
 def organize_statuses(all_messages):
     for mess in all_messages:
