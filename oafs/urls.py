@@ -22,6 +22,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', oafsIndex, name='oafsIndex'),
     path('oafs/', include('transfer.urls')),
-    path('etds/', include('etds.urls')),
     # path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

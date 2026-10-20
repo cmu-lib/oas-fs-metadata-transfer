@@ -12,7 +12,7 @@ on the CLEAN branch we have an example of oaswitchboard -> figshare but it shoul
 
 1. install this app into a virtual environment -- `mkvirtualenv nameofenv --python=/usr/bin/python3.10` (currently using python 3.10.12) and `workon nameofenv`
 2. run the `pip install -r requirements.txt`
-3. create superuser `./manage.py createsuperuser` and follow those instructions.
+3. !! the committed db.sqlite3 has the username:password as admin:admin. but otherwise you would create superuser `./manage.py createsuperuser` and follow those instructions. please update the password as you see fit.
 
 - /oafs/secrets.json
 this only contains the django SECRET_KEY but you can use it if there are other variables you want to separate and keep hidden. it is referenced in /oafs/settings.py on line 18.
