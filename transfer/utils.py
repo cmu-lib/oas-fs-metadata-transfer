@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.db.models import Q
 import datetime, requests
-from transfer.models import useDevSettings, serviceCredentials#, messageStatus
+from transfer.models import useDevSettings, serviceCredentials
 
 
 def handle_mess(status, note, mess):
@@ -9,28 +9,6 @@ def handle_mess(status, note, mess):
     mess.note = note
     mess.save()
     return mess
-
-# def organize_statuses(all_messages):
-#     for mess in all_messages:
-#         mess.statuses = messageStatus.objects.filter(oa=mess)
-
-#         if(len(mess.statuses)>1):
-#             mess.overall_status = "multiple errors/statuses"
-#         else:
-#             for i in mess.statuses:
-#                 print(i.status)
-#                 if i.status == "error":
-#                     mess.overall_status = "error"
-#                     break
-#                 elif i.status == "duplicate":
-#                     mess.overall_status = "duplicate"
-#                 elif i.status == "begin":
-#                     mess.overall_status = "begin"
-#                 elif i.status == "oa-ready":
-#                     mess.overall_status = "oa-ready"
-#                 else:
-#                     mess.overall_status = "unknown"
-#     return all_messages
 
 def get_val(dictionary,key): #simple function for keyerror try catch.
         try:

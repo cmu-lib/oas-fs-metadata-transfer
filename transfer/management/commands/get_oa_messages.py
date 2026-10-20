@@ -2,13 +2,13 @@ import requests, json
 from django.core.management.base import BaseCommand
 from transfer.models import oaMessage
 from transfer.utils import get_token, get_val, handle_mess
-from transfer import settings
+from transfer.settings import how_many_oa_messages, institution_ror
 
 #receive messages from OA SWITCHBOARD
 
 
 class Command(BaseCommand):
-    access = get_token('oaswitchboard')
+    access = get_token("oaswitchboard")
     startrow = 1
     total_messages = 0
     messages = []
@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
         params = {
             'startrow': str(self.startrow),
-            'maxrows': settings.how_many_oa_messages,
+            'maxrows': how_many_oa_messages,
             'filter': 'all',
             'orderby': 'created',
             'orderdir': 'desc',
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                 # this comes in as a webhook or EMAIL so we don't want to duplicate.
                 continue
             # articles must be sent to the correct ROR id.
-            elif article['header']['to']['address'] != settings.institution_ror:
+            elif article['header']['to']['address'] != institution_ror:
                 print(" not for us.")
                 continue
                 #########^^ these could be saved if we wanted to let oaswitchboard know about issues.
