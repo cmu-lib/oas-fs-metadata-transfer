@@ -1,53 +1,42 @@
 from django.utils import timezone
 from django.db.models import Q
 import datetime, requests
-from transfer.models import useDevSettings, serviceCredentials, messageStatus
+from transfer.models import useDevSettings, serviceCredentials#, messageStatus
 
 
-def handle_mess(status, note, mess, mess_type):
-    if status!="error":#if it's an error then we create another entry for the same message. we want to capture all errors in order to report
-        #and have complete data.
-        if mess_type == "oa":
-            mess_status = messageStatus(oa=mess)
-        elif mess_type == "fs":
-            mess_status = messageStatus(fs=mess)
-    else:# otherwise we can just update the existing thing.
-        if mess_type == "oa":
-            mess_status = messageStatus.objects.filter(oa=mess) & ~Q(status="error").first() # we want to update the first status, not create a new one.
-        elif mess_type == "fs":
-            mess_status = messageStatus.objects.filter(fs=mess) & ~Q(status="error").first() # we want to update the first status, not create a new one.
-    mess_status.note = note
-    mess_status.status = status
-    mess_status.save()
+def handle_mess(status, note, mess):
+    mess.status = status
+    mess.note = note
+    mess.save()
     return mess
 
-def organize_statuses(all_messages):
-    for mess in all_messages:
-        mess.statuses = messageStatus.objects.filter(oa=mess)
+# def organize_statuses(all_messages):
+#     for mess in all_messages:
+#         mess.statuses = messageStatus.objects.filter(oa=mess)
 
-        if(len(mess.statuses)>1):
-            mess.overall_status = "multiple errors/statuses"
-        else:
-            for i in mess.statuses:
-                print(i.status)
-                if i.status == "error":
-                    mess.overall_status = "error"
-                    break
-                elif i.status == "duplicate":
-                    mess.overall_status = "duplicate"
-                elif i.status == "begin":
-                    mess.overall_status = "begin"
-                elif i.status == "oa-ready":
-                    mess.overall_status = "oa-ready"
-                else:
-                    mess.overall_status = "unknown"
-    return all_messages
+#         if(len(mess.statuses)>1):
+#             mess.overall_status = "multiple errors/statuses"
+#         else:
+#             for i in mess.statuses:
+#                 print(i.status)
+#                 if i.status == "error":
+#                     mess.overall_status = "error"
+#                     break
+#                 elif i.status == "duplicate":
+#                     mess.overall_status = "duplicate"
+#                 elif i.status == "begin":
+#                     mess.overall_status = "begin"
+#                 elif i.status == "oa-ready":
+#                     mess.overall_status = "oa-ready"
+#                 else:
+#                     mess.overall_status = "unknown"
+#     return all_messages
 
 def get_val(dictionary,key): #simple function for keyerror try catch.
         try:
             return dictionary[key]
         except KeyError:
-            return  '!!missing!!'
+            return  0
 
 def get_token(service_name):
     print(service_name)
@@ -111,3 +100,19 @@ def get_token(service_name):
         else:
             print('no service name provided. please provide a service name.')
             return ""
+
+# if a name is improperly spelled or does not match EXACTLY or already exists in figshare then it won't work.
+# using the provided orcid, if it exists, get the authorID from figshare and just submit them with that. 
+def check_orcid_user_in_fs(orcid_id):
+    sc = get_token("oafigshare")
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    params = {
+        'access_token': sc.token,
+    }
+    response = requests.post(sc.url+'account/authors/search', params=params, headers=headers, data='{"orcid":"'+orcid_id+'"}').json()
+    if len(response) > 0:
+        return {'id': response[0]['id']}
+    else:
+        return 0

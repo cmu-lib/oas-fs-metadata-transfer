@@ -1,6 +1,6 @@
 import requests, json
 from django.core.management.base import BaseCommand
-from transfer.models import oaMessage, messageStatus
+from transfer.models import oaMessage
 from transfer.utils import get_token, get_val, handle_mess
 from transfer import settings
 
@@ -28,8 +28,6 @@ class Command(BaseCommand):
 
         oa_messages = requests.get(self.access.url+'messages', params=params, headers=headers).json()
         
-        # self.stdout.write(json.dumps(oa_messages))
-        
         self.total_messages = int(oa_messages['total'])
         return(oa_messages)
             
@@ -50,60 +48,51 @@ class Command(BaseCommand):
                 self.stdout.write('it is p2.')
                 continue
             if article['header']['meta']['routing']['notification'] != "WEBHOOK":
-                # this comes in as a webhook or a EMAIL so we don't want to duplicate.
+                # this comes in as a webhook or EMAIL so we don't want to duplicate.
                 continue
             # make the objs
             mess = oaMessage()
             mess.oa_id = article['id']
             mess.json = json.dumps(article)
-            mess.save()
-            mess_status = handle_mess("begin", "beginning to process oa message.", mess, "oa")
+            mess = handle_mess("begin", "beginning to process oa message.", mess)
             
             
             # articles must be sent to the correct ROR id.
             if article['header']['to']['address'] != settings.institution_ror:
                 print(" not for us.")
-                handle_mess("error", "not for us. meant for: "+ article['header']['to']['address'], mess, "oa")
+                handle_mess("error", "not for us. meant for: "+ article['header']['to']['address'], mess)
                 # mess.save()
                 continue
             
-            if get_val(article,'data') != '!!missing!!':
-                if get_val(article['data'],'article') != '!!missing!!':
-                    if get_val(article['data']['article'],'title') != '!!missing!!':
+            if get_val(article,'data') != 0:
+                if get_val(article['data'],'article') != 0:
+                    if get_val(article['data']['article'],'title') != 0:
                         mess.title = get_val(article['data']['article'],'title')
                     else:
                         mess.title='title field is missing'
-                        handle_mess("error", "title field is missing", mess, "oa")
-                        mess.save()
+                        handle_mess("error", "title field is missing", mess)
+                        continue
                 else:
                     mess.title = 'article field is missing.'
-                    handle_mess("error", "article field is missing.", mess, "oa")
-                    mess.save()
+                    handle_mess("error", "article field is missing.", mess)
+                    continue
             else:
                 mess.title = 'data field is missing.'
-                handle_mess("error", "data field is missing.", mess, "oa")
-                mess.save()
+                handle_mess("error", "data field is missing.")
                 continue
 
-            # oftentimes there are two articles coming in that are identical except for a small change
-            # one after another 
-            # if last_mess!=0 and mess.title == last_mess.title:
-            #     print('same titles!!!!')
-            #     self.stdout.write(mess.title)
-            #     if article['created']>json.loads(last_mess.json)['created']:
-            #         messageStatus.objects.filter(oa=last_mess).update(status="duplicate")
-                    
-            #     else:
-            #         # mess.status="duplicate"
-            #         mess_status.status = "duplicate"
-            #         mess_status.save()
-                    
+            # oftentimes there are two articles coming in that are identical except for an irrelevant change in hash.
+            # usually one after another. 
+            if last_mess!=0 and mess.title == last_mess.title:
+                # make the last mess a duplicate.
+                handle_mess("duplicate", "this is a duplicate of the last message. should be ignored.", last_mess)
+                
+            
+            if mess.status == "begin":
+                mess.status = "oa-ready"
+            if mess.note == "beginning to process oa message.":
+                mess.note = "ok from oaSwitchboard."
             mess.save()
-            if mess_status.status == "begin":
-                mess_status.status = "oa-ready"
-            if mess_status.note == "beginning to process message.":
-                mess_status.note = "ok from oaSwitchboard."
-            mess_status.save()
             last_mess = mess
             
 

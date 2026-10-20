@@ -3,7 +3,7 @@ import requests, json
 from django.core.management.base import BaseCommand
 from transfer.models import repoLicense
 from transfer.utils import get_token
-from transfer.settings import is_dev, in_copyright_num
+from transfer.settings import in_copyright_num
 
 class Command(BaseCommand):
 

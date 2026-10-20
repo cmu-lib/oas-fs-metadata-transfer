@@ -2,15 +2,28 @@
 
 {% block content %}
 
-
+<style>
+    .message-note,.message-json{display: none;}
+    .message-id{color:blue;text-decoration: underline;}
+    .message-id:hover{cursor: pointer;}
+    .status-id{text-decoration: underline;}
+    .status-id:hover{cursor: pointer;}
+    #helptext{
+        margin-left:15px;
+        width:45%;
+    }
+    #pagetitle{
+        margin-left: 15px;
+    }
+</style>
 
 <h3 id="pagetitle">All OA Messages</h3>
 <div class="container-fluid">
 <div class="row">
     <div id="helptext">
-        <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message.</p>
+        <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message. This message has not been processed to be input into the next stage.</p>
         <p>The link on the right, if <span style="color:red;">red/error</span> then clicking it will show the error.</p>
-        <p>If <span style="color:green;">green/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
+        <p>If <span style="color:blue;">blue/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
         <p>If it is <span style="color:orange;">orange/duplicate/multiple</span> then the link won't do anything but just letting you be aware.</p>
     </div>
 </div>
@@ -22,53 +35,25 @@
         </div>
             <div class="col-7">{{item.title}}</div> 
             <div class="col-2">saved on: {{item.attempted}}</div>
-        {%if item.overall_status == 'oa-ready'%}
+        {%if item.status == 'oa-ready' or item.status == 'done'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">ready</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">{{item.status}}</div>
         </div>
         {%endif%}
-        {%if item.overall_status == 'error'%}
+        {%if item.status == 'error' or item.status == 'failed during push'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:red;">{{item.overall_status}}</div>
-            <!-- <div id="retryOAConversion"
-                  hx-confirm="do you wanna try this one again?"
-                  hx-target="#wedidit"
-                  hx-swap="outerHTML">
-                    <a class="block mr-2 hover:text-gray-600"
-                        hx-retry="">put the django url in here if you want to actually do retryOAConversion
-                        retry?
-                    </a>
-            </div> -->
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:red;">{{item.status}}</div>
         </div>
         {%endif%}
-        
-        {%if item.overall_status == 'multiple errors/statuses'%}
+    
+        {%if item.status == 'issue' or item.status == 'duplicate'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:orange;">multiple errors/statuses</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:orange;">{{item.status}}</div>
         </div>
         {%endif%}
-        {%if item.overall_status == 'duplicate'%}
-        <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:orange;">{{item.overall_status}}</div>
-        </div>
-        {%endif%}
-        {%if item.overall_status == 'done' or item.overall_status == 'failed during push'%}
-        <div class="col-2">
-            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">{{item.overall_status}}</div>
-        </div>
-        {%endif%}
-
         <div class="message-json col-12" id="json-{{item.oa_id}}">{{item.json}}</div>
         <div class="message-note col-12" id="note-{{item.oa_id}}">
-            {%if item.overall_status == 'multiple errors/statuses'%}
-                <ul>
-                {% for status in item.status.all %}
-                    <li>{{status.status}}: {{status.note}}</li>
-                {% endfor %}
-                </ul>
-            {%else%}
-                {{item.status.note}}
-            {%endif%}
+            {{item.note}}
         </div>
     </div> 
     <!-- endrow -->

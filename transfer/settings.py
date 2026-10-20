@@ -1,4 +1,3 @@
-from pathlib import Path
 from transfer.models import useDevSettings
 
 is_dev = useDevSettings.objects.first() #based on the admin setting, where this is set, determine which secret file to use.
