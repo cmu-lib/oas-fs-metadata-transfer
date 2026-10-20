@@ -36,6 +36,9 @@ class Command(BaseCommand):
         last_mess = 0
         already_here_count = 0
         for i, article in enumerate(messages['messages']):
+            
+            
+            # check if messages are meant for us. the correct ror, if it's not a p2, if it's a duplicate.
             # put in a check to see if this particular message has been processed already
             if oaMessage.objects.filter(oa_id=article['id']):#this article exists already
                 self.stdout.write('it\'s here already')
@@ -47,23 +50,21 @@ class Command(BaseCommand):
             elif article['type'] == "p2":
                 self.stdout.write('it is p2.')
                 continue
-            if article['header']['meta']['routing']['notification'] != "WEBHOOK":
+            elif article['header']['meta']['routing']['notification'] != "WEBHOOK":
                 # this comes in as a webhook or EMAIL so we don't want to duplicate.
                 continue
+            # articles must be sent to the correct ROR id.
+            elif article['header']['to']['address'] != settings.institution_ror:
+                print(" not for us.")
+                continue
+                #########^^ these could be saved if we wanted to let oaswitchboard know about issues.
+            
             # make the objs
             mess = oaMessage()
             mess.oa_id = article['id']
             mess.json = json.dumps(article)
             mess = handle_mess("begin", "beginning to process oa message.", mess)
-            
-            
-            # articles must be sent to the correct ROR id.
-            if article['header']['to']['address'] != settings.institution_ror:
-                print(" not for us.")
-                handle_mess("error", "not for us. meant for: "+ article['header']['to']['address'], mess)
-                # mess.save()
-                continue
-            
+            #make sure they have the proper major data fields.
             if get_val(article,'data') != 0:
                 if get_val(article['data'],'article') != 0:
                     if get_val(article['data']['article'],'title') != 0:
