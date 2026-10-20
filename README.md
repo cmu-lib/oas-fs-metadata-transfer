@@ -7,6 +7,7 @@ now, this app is meant to be a vaugely general framework/guideline for taking in
 the impetus to make it more general was from interest from the oaswitchboard community to share code and to accommodate another project where we take in deposits from proquest and put them to figshare for our electronic theses and dissertations.
 
 on the CLEAN branch we have an example of oaswitchboard -> figshare but it should be default-enough for one to use it for their own purposes with some customizations..
+unfortunately you'll need a little django/python experience to use this.
 
 ### setup
 
@@ -26,6 +27,7 @@ for instance
 
 we have credentials for the dev version of oaswitchboard which look like this:
 
+```
 - name - "oaswitchboard" 
 	- depending on the name you will have to change transfer.utils.py and get_oa_messages.py to handle the different service for get_token().
 - url: "https://api.oaswitchboard.org/v2/"
@@ -36,6 +38,7 @@ we have credentials for the dev version of oaswitchboard which look like this:
 	- is saved to on creation of token. if it's more than hour old, a new one is created so you don't overwhelm the service.
 - is_dev: on, if these are credentials for your dev instance of the service.
 !! client_id and secret for oaswitchboard are *email* and *pw*. this is handled in transfer.utils.get_token() function dependent upon the service being used.!!
+```
 
 make another one for where you want to send it.
 
