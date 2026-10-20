@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import useDevSettings, serviceCredentials  # Import your model here
 
-# Register your models here.
+admin.site.register(useDevSettings)
+admin.site.register(serviceCredentials)

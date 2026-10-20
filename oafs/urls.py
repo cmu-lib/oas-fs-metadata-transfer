@@ -15,15 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from transfer import views
+from django.urls import path, include
+from transfer.views import oafsIndex, fsAttempts, showMessages, showLicenses, allErrors, retryOAConversion
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.oafsIndex, name='oafsIndex'),
-    path('fsAttempts', views.fsAttempts, name='fsAttempts'),
-    path('oaMessages', views.showMessages, name='showMessages'),
-    path('fsLicenses', views.showLicenses, name='showLicenses'),
-    path('allErrors', views.allErrors, name='allErrors'),
-    path('<int:key_id>/', views.retryOAConversion, name='retryOAConversion'),
+    path('', oafsIndex, name='oafsIndex'),
+    path('oafs/', include('transfer.urls')),
+    # path('<int:key_id>/', retryOAConversion, name='retryOAConversion'),
 ]

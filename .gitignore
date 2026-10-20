@@ -2,4 +2,4 @@
 ./oafs-venv
 **/__pycache__/
 oafs/secrets.json
-oafs/db.sqlite3
+oafs/secrets_pq.json

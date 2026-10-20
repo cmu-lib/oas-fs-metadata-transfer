@@ -1,43 +1,45 @@
-from django.core.management.base import BaseCommand, CommandError
-from transfer.models import oaMessage,fsAttempt,repoLicense #,orcidUser
-from oafs.settings import secrets, fs_base_url
-import requests
-import json
-import re
+from django.core.management.base import BaseCommand
+from transfer.models import oaMessage,fsAttempt,repoLicense
+from transfer.utils import get_val, handle_mess, check_orcid_user_in_fs
+from transfer.settings import in_copyright_num, figshare_group_id
+import json, re
 from datetime import datetime
 
 
 
 class Command(BaseCommand):
+	# for matching orcid :)
 	orcid_match = re.compile("\d{4}-\d{4}-\d{4}-(\d{3}X|\d{4})")
-	
-	def get_val(self,dictionary,key): #stupid function for keyerror try catch.
-		try:
-			return dictionary[key]
-		except KeyError:
-			return  "" #empty string if it doesn't exist. you may wanna handle this differently.
-
-	def add_to_note(self,message,note_addition,is_error):
-		if message.note=="":
-			message.note=note_addition+ " -- " + str(datetime.now())
-		else:
-			message.note+="\n"+note_addition + " -- " + str(datetime.now())
-		if is_error:
-			message.status='error'
-			message.save()
 
 	def convert_oa(self):
-		ready_messages = oaMessage.objects.filter(status='ready')
+		# get messages resady to be converted to figshare.
+		ready_messages = oaMessage.objects.filter(status='oa-ready')#get the ready oa-messages
 		message_counter=0
+		
+		# iterate, reading the json and then finding necessary/relevant variables.
 		for message in ready_messages:
-			mj = json.loads(message.message_json)
-			# print(mj)
+			already_subbed = False
 			message_counter+=1
-			message_to_fs = {"authors":[],"funding_list":[],"title":"","published_date":"","status":"published","license":0,"doi":"","keywords":['OA Switchboard'],"defined_type":"journal contribution","group_id":secrets['figshare_group_id']}
-			# let's get authors
+
+			# analyze the message json. get essential vars and create the fsAttempt object.
+			mj = json.loads(message.json)
+			article = mj['data']['article']
+			title = article['title']
+			new_doi = article['doi'][16:len(article['doi'])]
+			# json.loads(i.json)['doi']
+			message_to_fs = {"authors":[],"funding_list":[],"title":title,"published_date":"","status":"published","license":0,"doi":new_doi,"keywords":['OA Switchboard'],"defined_type":"journal contribution","group_id":figshare_group_id}
+
+			
+			
+			# add description
+			message_to_fs['description'] = "This journal contribution is published Open Access by the publisher. Follow the DOI link to retrieve a copy of the full text.\n" + get_val(article,'acknowledgement')
+			
+			
+			# authors
 			authors = mj['data']['authors']
-			article_orcid_authors = []
+			
 			for this_guy in authors:
+				# example:
 				# {
 				# "id": 97657,
 				# "full_name": "John Doe",
@@ -48,86 +50,115 @@ class Command(BaseCommand):
 				# "orcid_id": "1234-5678-9123-1234"
 				# }
 				# ou = orcidUser()
-				# ou.f_name = fn = self.get_val(this_guy,'firstName')
-				# ou.l_name = ln = self.get_val(this_guy,'lastName')
-				fn = self.get_val(this_guy,'firstName')
-				ln = self.get_val(this_guy,'lastName')
-				ini = self.get_val(this_guy,'initials')
-				orcid = self.get_val(this_guy,'ORCID')
-				ini = self.get_val(this_guy,'initials')
-				orcid = self.get_val(this_guy,'ORCID')
+				fn = get_val(this_guy,'firstName')
+				ln = get_val(this_guy,'lastName')
+				# ini = get_val(this_guy,'initials')
+				orcid = str(get_val(this_guy,'ORCID'))
+				fs_user = 0
+				author_dict = {}
 
-				if "orcid.org" in orcid:
-				    orcid = orcid.split('/')[3]
-				    if self.orcid_match.match(orcid) is None or len(orcid.split('-'))>4:
-				        orcid=""
-				        self.add_to_note(message,"\ncouldn't find or improperly formatted orcid id for "+ fn + " " + ln,1)
-				# inst = self.get_val(this_guy,'institutions')
-				# print(inst) # ex [{'name': 'Departmentof Biomedical Engineering, Carnegie MellonUniversity, Pittsburgh, Pennsylvania, United States, 15213', 'country': '', 'sourceaffiliation': '', 'ror': 'https://ror.org/05x2bcf33'}]
-				# inst = self.get_val(inst[0],'name').split(',')[0]
-				# where does inst go??? i guess we won't use it!
-				# ou.orcid = orcid
-				# ou.save()
-				# article_orcid_authors.append(ou)
-				author_dict = {"name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}
-				message_to_fs['authors'].append(author_dict)
+				if orcid == "":
+					message = handle_mess("issue","\ncouldn't find orcid id for "+ fn + " " + ln,message)
+				elif "orcid.org" in orcid: # if orcid dot org is in the thing
+					orcid = orcid.split('/')[3] #split the url and get the last part which is the orcid id to see if it's valid
+					if self.orcid_match.match(orcid) is None or len(orcid.split('-'))>4:
+						orcid=""
+						message = handle_mess("issue","\ncouldn't find or improperly formatted orcid id for "+ fn + " " + ln,message)
+					else:# there is a legit orcid id check if the user is in figshare.
+						fs_user = check_orcid_user_in_fs(orcid)
+						if fs_user != 0:
+							author_dict = fs_user
+				# it may have been submitted not as blank and not with doi.org. so assume 0000-0000-0000-0000.
+				elif self.orcid_match.match(orcid) is None or len(orcid.split('-'))>4:# it's not valid.
+					orcid=""
+					message = handle_mess("issue","\ncouldn't find or improperly formatted orcid id for "+ fn + " " + ln,message)
+				else: # alright lets assume its good.
+					fs_user = check_orcid_user_in_fs(orcid)
+					if fs_user != 0:
+						author_dict = fs_user
 				
+				if len(author_dict)==0: #if we didn't find a user in figshare with this orcid, then just add the name and orcid to the authors list.	
+					author_dict = {"name":fn+" "+ln,"first_name":fn,"last_name":ln,"orcid_id":orcid}						
+				
+				message_to_fs['authors'].append(author_dict)
 
-			article = mj['data']['article']
-			print(article)
-			print(message.id)
-			title = article['title']
-			message_to_fs['description'] = "This journal contribution is published Open Access by the publisher. Follow the DOI link to retrieve a copy of the full text.\n" + self.get_val(article,'acknowledgement')
-			message_to_fs['title'] = title
-			print(str(message.id) + title)
-			if self.get_val(article,'manuscript'):
-				publication_date = self.get_val(article['manuscript']['dates'],'publication')
+
+			
+			# publication date.
+			publication_date = ""
+			if get_val(article,'manuscript'):# if there's manuscript
+				if get_val(article['manuscript']['dates'],'publication'):
+					publication_date = article['manuscript']['dates']['publication']
+					message_to_fs['published_date'] = publication_date
+				elif get_val(article['manuscript']['dates'],'acceptance'):
+					publication_date = article['manuscript']['dates']['acceptance']
+					message_to_fs['published_date'] = publication_date
+				elif publication_date == "":
+					message = handle_mess("error", "theres no clear publication date", message)
+					fsAttempt(json=json.dumps(message_to_fs), doi=new_doi, oam_fk=message).save()
+					#can't go further without publication date.
+					continue
 			else:
-				self.add_to_note(message,"theres no manuscript field which contains the publication date",1)
+				message = handle_mess("error", "theres no manuscript section in message", message)
+				fsAttempt(json=json.dumps(message_to_fs), doi=new_doi, oam_fk=message).save()
+				#can't go further without manuscript date.
 				continue
-			# we need a publication date.
-			if publication_date == "":
-			    publication_date = self.get_val(article['manuscript']['dates'],'acceptance')
-			    # this is the one time we add to note and don't change to error.
-			    self.add_to_note(message,"using the 'acceptance date' because no publication date was found",0)
-			    message.save()
-			message_to_fs['published_date']=publication_date
 
+			
+			
 			# get license.
 			license = repoLicense.objects.filter(name=article['vor']['license'])
 			if not license:
-				message_to_fs['license']=44
-				self.add_to_note(message,"using default license. there is no matching license. was looking for: " + article['vor']['license'],0)
-				print("\nthere's no matching license here!!!!\n")
+				# no matching license. use the default in_copyright_num
+				message_to_fs['license']= in_copyright_num
+				message = handle_mess("issue", "using default license. there is no matching license. was looking for: " + article['vor']['license'], message)
+				# print("\nthere's no matching license here!!!!\n")
 			else:
-				print('yeah it matches')
 				# confident in using [0] here because of unique constraint on the model
 				message_to_fs['license']=int(license[0].value)
 
-			# DOI DOI DOI
-			message_to_fs['doi']=article['doi'][16:len(article['doi'])]
-
+			
+			
+			
 			#grant info.
-			if len(self.get_val(article,'grants'))>0:
+			if len(get_val(article,'grants'))>0:
 
 				for grant in article['grants']:
-					print(grant)
-					if len(self.get_val(grant,'name'))>0:
+					# print(grant)
+					if len(get_val(grant,'name'))>0:
 						message_to_fs['funding_list'].append({"grant_code":grant['name']})
-					elif len(self.get_val(grant,'id'))>0:
+					elif len(get_val(grant,'id'))>0:
 						message_to_fs['funding_list'].append({"grant_code":grant['id']})
 					else:
 						message_to_fs['funding_list'].append({"grant_code":0})
-						self.add_to_note(message,'could not determine grant code',1)
+						message = handle_mess("issue", "could not determine grant code", message)
 
-
-			fsa = fsAttempt(fs_attempt_json=json.dumps(message_to_fs), oama_fk=message)
+			
+			
+			# checking if this is a resubmission.
+			if get_val(mj['header']['meta'],'resubmitted'):
+				print(" its resubmitted.")
+				# this is a resubmission. did we already upload it?
+				# get the old attempt
+				old_fsAttempt = fsAttempt.objects.filter(doi=new_doi)
+				if len(old_fsAttempt)>0:
+					print("we will have to update this. gotta put in some addt code to handle this.")
+					#change old_fsAttempt status to update
+					old_fsAttempt.update(status='updated')
+					old_fsAttempt = old_fsAttempt.first()
+					#get the figshare entry id and add it to the current fsAttempt
+					message_to_fs['fs_id']=old_fsAttempt.fs_id
+					#this is a resubmission. we will have to update the old one.
+					message = handle_mess("update", "this is a resubmission. we will have to update the old one.", message)
+					# so search in a diff file for messages with status "update" and an fs_id.
+			
+			
+			if get_val(message_to_fs,'fs_id') != 0:#check if there is an fs_id in message_to_fs. if there is then this is an update
+				message_to_fs['status']='ready-for-push' #otherwise it's ready to push.
+			else:
+				message_to_fs['status']='update' #otherwise it's ready to push.
+			fsa = fsAttempt(json=json.dumps(message_to_fs), doi=new_doi, oam_fk=message)
 			fsa.save()
-			#save this attempt with the authors.
-			for author in article_orcid_authors:
-				author.articles.add(fsa)
-				author.save()
-
 	def handle(self, *args, **options):
 
 		self.convert_oa()

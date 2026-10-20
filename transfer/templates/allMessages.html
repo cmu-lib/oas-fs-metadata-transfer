@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <style>
     .message-note,.message-json{display: none;}
     .message-id{color:blue;text-decoration: underline;}
@@ -20,47 +21,40 @@
 <div class="container-fluid">
 <div class="row">
     <div id="helptext">
-        <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message.</p>
+        <p>Use this page to assess messages coming from OA Switchboard. The link on the left will show the full json of the message. This message has not been processed to be input into the next stage.</p>
         <p>The link on the right, if <span style="color:red;">red/error</span> then clicking it will show the error.</p>
         <p>If <span style="color:blue;">blue/ready</span> then clicking it will bring you to the Figshare status page with this entry at the top for you to take further action.</p>
-        <p>If it is <span style="color:orange;">orange/duplicate</span> then the link won't do anything but just letting you be aware.</p>
+        <p>If it is <span style="color:orange;">orange/duplicate/multiple</span> then the link won't do anything but just letting you be aware.</p>
     </div>
 </div>
 <div id="wedidit"></div>
     {% for item in messages  %}
         <div class="row">
         <div class="col-1">
-            <div class="message-id" id="message-{{item.message_id}}">{{item.message_id}}</div> 
+            <div class="message-id" id="message-{{item.oa_id}}">{{item.oa_id}}</div> 
         </div>
-            <div class="col-7">{{item.message_title}}</div> 
+            <div class="col-7">{{item.title}}</div> 
             <div class="col-2">saved on: {{item.attempted}}</div>
-        {%if item.status == 'ready'%}
+        {%if item.status == 'oa-ready' or item.status == 'done'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:green;"><a href="/fsAttempts#oa-{{item.id}}">{{item.status}}</a></div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:green;">{{item.status}}</div>
         </div>
         {%endif%}
-        {%if item.status == 'error'%}
+        {%if item.status == 'error' or item.status == 'failed during push'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:red;">{{item.status}}</div>
-            <!-- <div id="retryOAConversion"
-                  hx-confirm="do you wanna try this one again?"
-                  hx-target="#wedidit"
-                  hx-swap="outerHTML">
-                    <a class="block mr-2 hover:text-gray-600"
-                        hx-retry="{% url 'retryOAConversion' item.message_id %}">
-                        retry?
-                    </a>
-            </div> -->
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:red;">{{item.status}}</div>
         </div>
         {%endif%}
-        {%if item.status == 'duplicate'%}
+    
+        {%if item.status == 'issue' or item.status == 'duplicate'%}
         <div class="col-2">
-            <div class="status-id" id="status-{{item.message_id}}" style="color:orange;">{{item.status}}</div>
+            <div class="status-id" id="status-{{item.oa_id}}" style="color:orange;">{{item.status}}</div>
         </div>
         {%endif%}
-            
-        <div class="message-json col-12" id="json-{{item.message_id}}">{{item.message_json}}</div>
-        <div class="message-note col-12" id="note-{{item.message_id}}">{{item.note}}</div>
+        <div class="message-json col-12" id="json-{{item.oa_id}}">{{item.json}}</div>
+        <div class="message-note col-12" id="note-{{item.oa_id}}">
+            {{item.note}}
+        </div>
     </div> 
     <!-- endrow -->
     {% endfor %}

@@ -10,14 +10,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import json
-import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# secrets are stored outside of version control and read here.
-with open(str(BASE_DIR)+'/secrets_dev.json') as f:
+DEBUG = True
+secrets_file = str(BASE_DIR)+'/secrets.json'
+with open(secrets_file) as f:
     secrets = json.loads(f.read())
 # and retreived in this way. you can use env as well if you hate this
 def get_secret(setting, secrets=secrets):
@@ -27,19 +27,10 @@ def get_secret(setting, secrets=secrets):
         error_msg = 'set the {0} env variable '.format(setting)
         raise ImproperlyConfigured(error_msg)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = get_secret('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
-
-ALLOWED_HOSTS = ['127.0.0.1','apidashboard.library.cmu.edu']
-fs_base_url = "https://api.figsh.com/v2/"
-how_many_oa_messages = '50'
-
+ALLOWED_HOSTS = ['localhost', '127.0.0.1','apidashboard.library.cmu.edu'] # add your url here.
 
 # Application definition
 
@@ -50,7 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'transfer'
+    'transfer',
 ]
 
 MIDDLEWARE = [
